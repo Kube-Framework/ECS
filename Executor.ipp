@@ -117,7 +117,7 @@ inline SystemType &kF::ECS::Executor::getSystem(const std::uint32_t pipelineInde
 template<typename DestinationPipeline, typename Callback>
 inline void kF::ECS::Executor::sendEvent(Callback &&callback) noexcept
 {
-    using Decomposer = Core::Utils::FunctionDecomposerHelper<Callback>;
+    using Decomposer = Core::FunctionDecomposerHelper<Callback>;
 
     static_assert(Decomposer::IndexSequence.size() <= 1,
         "ECS::Executor::sendEvent: Event callback may only have one argument that must be a reference to any system");
@@ -132,7 +132,7 @@ inline void kF::ECS::Executor::sendEvent(Callback &&callback) noexcept
 template<typename Callback>
 inline void kF::ECS::Executor::sendEvent(const std::uint32_t pipelineIndex, Callback &&callback) noexcept
 {
-    using Decomposer = Core::Utils::FunctionDecomposerHelper<Callback>;
+    using Decomposer = Core::FunctionDecomposerHelper<Callback>;
     bool res = false;
 
     // If the callback has a system reference as single argument

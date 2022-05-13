@@ -31,5 +31,5 @@ namespace kF::ECS
 
     /** @brief Pipeline concept */
     template<typename Type>
-    concept Pipeline = Core::Utils::IsTag<Type, PipelineTag>;
+    concept Pipeline = Core::IsTag<Type, PipelineTag>;
 }

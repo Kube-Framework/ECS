@@ -5,7 +5,7 @@
 
 #include "ComponentTable.hpp"
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 template<typename ...Args>
 inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::add(const Entity entity, Args &&...args) noexcept
 {
@@ -18,7 +18,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
     return _components.push(std::forward<Args>(args)...);
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, ComponentType &&component) noexcept
 {
     if (auto componentIndex = findIndex(entity); componentIndex != NullIndex) [[likely]] {
@@ -31,7 +31,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
     }
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 template<typename Functor>
 inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, Functor &&functor) noexcept
 {
@@ -48,7 +48,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
     return *ptr;
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addRange(const EntityRange range, const ComponentType &component) noexcept
 {
     const auto lastIndex = _entities.size();
@@ -75,7 +75,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::a
     _components.insertCopy(_components.end(), count, component);
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::remove(const Entity entity) noexcept
 {
     kFAssert(exists(entity),
@@ -86,14 +86,14 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::r
     removeImpl(entity, componentIndex);
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::tryRemove(const Entity entity) noexcept
 {
     if (const auto componentIndex = findIndex(entity); componentIndex != NullIndex) [[likely]]
         removeImpl(entity, componentIndex);
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::removeImpl(const Entity entity, const EntityIndex componentIndex) noexcept
 {
     if (_components.size() != componentIndex + 1) [[likely]] {
@@ -107,7 +107,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::r
     _components.pop();
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::removeRange(const EntityRange range) noexcept
 {
     Core::SmallVector<Entity, 128, Allocator, Entity> indexes;
@@ -152,7 +152,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::r
     _components.erase(_components.begin() + last + 1, _components.end());
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline ComponentType kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::extract(const Entity entity) noexcept
 {
     kFAssert(exists(entity),
@@ -175,7 +175,7 @@ inline ComponentType kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allo
     return value;
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::clear(void) noexcept
 {
     if constexpr (IndexSparseSet::IsSafeToClear) {
@@ -188,7 +188,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::c
     _components.clear();
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::release(void) noexcept
 {
     if constexpr (IndexSparseSet::IsSafeToClear) {
@@ -201,7 +201,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::r
     _components.release();
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline kF::ECS::EntityIndex kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::findIndex(const Entity entity) const noexcept
 {
     const auto it = _entities.find(entity);
@@ -211,7 +211,7 @@ inline kF::ECS::EntityIndex kF::ECS::ComponentTable<ComponentType, EntityPageSiz
         return NullIndex;
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 template<typename CompareFunctor>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::sort(CompareFunctor &&compareFunc) noexcept
 {

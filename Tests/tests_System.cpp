@@ -37,7 +37,7 @@ struct Foo
     int value {};
 };
 class FooSystem : public ECS::System<
-    "Foo", DummyPipeline, Core::Utils::DefaultStaticAllocator,
+    "Foo", DummyPipeline, Core::DefaultStaticAllocator,
     Foo
 >
 {
@@ -159,7 +159,7 @@ struct BarB
     float value {};
 };
 class BarSystem : public ECS::System<
-    "Bar", DummyPipeline, Core::Utils::DefaultStaticAllocator,
+    "Bar", DummyPipeline, Core::DefaultStaticAllocator,
     BarA, BarB
 >
 {

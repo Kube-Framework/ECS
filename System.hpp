@@ -42,12 +42,12 @@ namespace kF::ECS
         class ASystem;
     }
 
-    template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::Utils::StaticAllocator Allocator, typename ...ComponentTypes>
+    template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
     class System;
 
     /** @brief Concept that ensure multiple Components match a ComponentsTuple */
     template<typename ComponentsTuple, typename ...Components>
-    concept SystemComponentRequirements = (Core::Utils::TupleContainsElement<Components, ComponentsTuple> && ...);
+    concept SystemComponentRequirements = (Core::TupleContainsElement<Components, ComponentsTuple> && ...);
 }
 
 /** @brief Abstract class of any system */
@@ -122,8 +122,8 @@ static_assert_sizeof_cacheline(kF::ECS::Internal::ASystem);
 /** @brief Abstract class of any system that contains meta data about the system
  *  @tparam Literal Name of the System
  *  @tparam Pipeline System's execution pipeline */
-template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::Utils::StaticAllocator Allocator =
-        kF::Core::Utils::DefaultStaticAllocator, typename ...ComponentTypes>
+template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator =
+        kF::Core::DefaultStaticAllocator, typename ...ComponentTypes>
 class alignas(sizeof...(ComponentTypes) ? kF::Core::CacheLineDoubleSize : kF::Core::CacheLineSize)
         kF::ECS::System : public Internal::ASystem
 {
@@ -270,11 +270,11 @@ public:
     template<typename Component>
         requires SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline auto &getTable(void) noexcept
-        { return std::get<Core::Utils::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
+        { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
     template<typename Component>
         requires SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline const auto &getTable(void) const noexcept
-        { return std::get<Core::Utils::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
+        { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
 
 
     /** @brief Get a component using its type and an entity */

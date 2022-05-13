@@ -11,11 +11,11 @@
 
 namespace kF::ECS
 {
-    template<typename ComponentType, Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator>
+    template<typename ComponentType, Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
     class ComponentTable;
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Utils::StaticAllocator Allocator = kF::Core::Utils::DefaultStaticAllocator>
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator = kF::Core::DefaultStaticAllocator>
 class alignas_cacheline kF::ECS::ComponentTable
 {
 public:
