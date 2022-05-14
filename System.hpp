@@ -205,7 +205,7 @@ public:
 
     /** @brief Creates an entity with components */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     [[nodiscard]] Entity add(Components &&...components) noexcept;
 
     /** @brief Creates a range of entities */
@@ -213,18 +213,18 @@ public:
 
     /** @brief Creates a range of entities with components */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     [[nodiscard]] EntityRange addRange(const Entity count, Components &&...components) noexcept;
 
 
     /** @brief Attach components to an entity */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void attach(const Entity entity, Components &&...components) noexcept;
 
     /** @brief Attach components to an entity, if the component already exists then update it */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void attachUpdate(const Entity entity, Components &&...components) noexcept;
 
     /** @brief Try to update components of an entity
@@ -234,23 +234,23 @@ public:
 
     /** @brief Attach components to a range of entities */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void attachRange(const EntityRange range, Components &&...components) noexcept;
 
 
     /** @brief Dettach components from an entity */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void dettach(const Entity entity) noexcept;
 
     /** @brief Dettach components from an entity */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void tryDettach(const Entity entity) noexcept;
 
     /** @brief Dettach components from a range of entities */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void dettachRange(const EntityRange range) noexcept;
 
 
@@ -263,7 +263,7 @@ public:
     /** @brief Removes an entity, knowing attached components at compile time
      *  @note Any component attached that is not referenced inside 'Components' will not get destroyed */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void removeUnsafe(const Entity entity) noexcept;
 
     /** @brief Removes an entity, without destroying its components */
@@ -272,7 +272,7 @@ public:
     /** @brief Removes a range of entities, knowing attached components at compile time
      *  @note Any component attached that is not referenced inside 'Components' will not get destroyed */
     template<typename ...Components>
-        requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
     void removeUnsafeRange(const EntityRange range) noexcept;
 
     /** @brief Removes a range of entities, without destroying its components */
@@ -281,22 +281,22 @@ public:
 
     /** @brief Get a component table by component type */
     template<typename Component>
-        requires SystemComponentRequirements<ComponentsTuple, Component>
+        requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline auto &getTable(void) noexcept
         { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
     template<typename Component>
-        requires SystemComponentRequirements<ComponentsTuple, Component>
+        requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline const auto &getTable(void) const noexcept
         { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
 
 
     /** @brief Get a component using its type and an entity */
     template<typename Component>
-        requires SystemComponentRequirements<ComponentsTuple, Component>
+        requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline Component &get(const Entity entity) noexcept
         { return getTable<Component>().get(entity); }
     template<typename Component>
-        requires SystemComponentRequirements<ComponentsTuple, Component>
+        requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline const Component &get(const Entity entity) const noexcept
         { return getTable<Component>().get(entity); }
 
