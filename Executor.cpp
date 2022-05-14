@@ -6,6 +6,7 @@
 #include <chrono>
 #include <limits>
 #include <thread>
+#include <cmath>
 
 #include <Kube/Core/Abort.hpp>
 
@@ -86,7 +87,6 @@ void ECS::Executor::run(void) noexcept
 
     // Run until executor receive stop event
     while (true) {
-        const std::int64_t now = std::chrono::high_resolution_clock::now().time_since_epoch().count();
         // Observe pipelines
         observePipelines();
 
@@ -173,16 +173,16 @@ void ECS::Executor::waitPipelines(void) noexcept
         auto end = std::chrono::high_resolution_clock::now();
 
         // Observe real slept time
-        double observed = (end - start).count() / 1e9;
+        const auto observed = static_cast<double>((end - start).count()) / 1e9;
         // kFInfo("  Slept for ", observed * 1e3, " / ", seconds * 1e3, " ms (", _cache.sleepEstimate * 1e3, ")");
         seconds -= observed;
 
         // Update estimate accurate sleep time
         ++_cache.sleepCount;
         double delta = observed - _cache.sleepMean;
-        _cache.sleepMean += delta / _cache.sleepCount;
+        _cache.sleepMean += delta / static_cast<double>(_cache.sleepCount);
         _cache.sleepM2   += delta * (observed - _cache.sleepMean);
-        double stddev = sqrt(_cache.sleepM2 / (_cache.sleepCount - 1));
+        double stddev = std::sqrt(_cache.sleepM2 / static_cast<double>(_cache.sleepCount - 1));
         _cache.sleepEstimate = _cache.sleepMean + stddev;
     }
 
@@ -274,9 +274,15 @@ static void PreciseSleep(const std::int64_t nanoseconds) noexcept
         WaitForSingleObject(WindowsTimer.handle, INFINITE);
 }
 #else
+#include <time.h>
 static void PreciseSleep(const std::int64_t nanoseconds) noexcept
 {
-    nanosleep(nanoseconds);
+    const struct timespec spec {
+        .tv_sec = time_t {},
+        .tv_nsec = nanoseconds
+    };
+    struct timespec rem {};
+    nanosleep(&spec, &rem);
 }
 #endif
 

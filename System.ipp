@@ -9,7 +9,7 @@
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline kF::ECS::Entity kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::add(Components &&...components) noexcept
 {
     const auto entity = add();
@@ -21,7 +21,7 @@ inline kF::ECS::Entity kF::ECS::System<Literal, TargetPipeline, Allocator, Compo
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline kF::ECS::EntityRange kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::addRange(const Entity count, Components &&...components) noexcept
 {
     const auto range = addRange(count);
@@ -32,7 +32,7 @@ inline kF::ECS::EntityRange kF::ECS::System<Literal, TargetPipeline, Allocator, 
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attach(const Entity entity, Components &&...components) noexcept
 {
     ((getTable<Components>().add(entity, std::forward<Components>(components))), ...);
@@ -40,7 +40,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attachUpdate(const Entity entity, Components &&...components) noexcept
 {
     ((getTable<Components>().addUpdate(entity, std::forward<Components>(components))), ...);
@@ -52,7 +52,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 {
     const auto apply = [this]<typename Functor>(Functor &&functor) {
         using Decomposer = Core::FunctionDecomposerHelper<Functor>;
-        using Component = std::remove_cvref_t<std::tuple_element_t<0, Decomposer::ArgsTuple>>;
+        using Component = std::remove_cvref_t<std::tuple_element_t<0, typename Decomposer::ArgsTuple>>;
         getTable<Component>().addUpdate(std::forward<Functor>(functor));
     };
 
@@ -61,7 +61,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attachRange(const EntityRange range, Components &&...components) noexcept
 {
     ((getTable<Components>().addRange(range, std::forward<Components>(components))), ...);
@@ -69,7 +69,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::dettach(const Entity entity) noexcept
 {
     ((getTable<Components>().remove(entity)), ...);
@@ -77,7 +77,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryDettach(const Entity entity) noexcept
 {
     ((getTable<Components>().tryRemove(entity)), ...);
@@ -85,7 +85,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::dettachRange(const EntityRange range) noexcept
 {
     ((getTable<Components>().removeRange(range)), ...);
@@ -94,7 +94,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::remove(const Entity entity) noexcept
 {
-    const auto wrapper = [this]<Entity ...Indexes>(const Entity entity, const std::integer_sequence<Entity, Indexes...>) {
+    const auto wrapper = [this]<Entity ...Indexes>([[maybe_unused]] const Entity entity, const std::integer_sequence<Entity, Indexes...>) {
         ((std::get<Indexes>(_tables).tryRemove(entity)), ...);
     };
 
@@ -115,7 +115,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafe(const Entity entity) noexcept
 {
     ((getTable<Components>.remove(entity)), ...);
@@ -124,7 +124,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafeRange(const EntityRange range) noexcept
 {
     ((getTable<Components>.removeRange(range)), ...);
@@ -136,7 +136,7 @@ template<typename Callback>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::interact(Callback &&callback) const noexcept
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
-    using DestinationSystem = std::tuple_element_t<0, Decomposer::ArgsTuple>;
+    using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
     using FlatSystem = std::remove_reference_t<DestinationSystem>;
 
     interact<FlatSystem::ExecutorPipeline>(std::forward<Callback>(callback));
@@ -146,15 +146,15 @@ template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Co
 template<typename DestinationPipeline, typename Callback>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::interact(Callback &&callback) const noexcept
 {
-    // If 'this' pipeline is same as destination pipeline
-    if constexpr (std::is_same_v<ExecutorPipeline, DestinationPipeline>) {
+    const auto invoke = [this](const auto pipelineIndex, const auto &callback) {
         using Decomposer = Core::FunctionDecomposerHelper<Callback>;
+
         // Callback without argument
         if constexpr (Decomposer::IndexSequence.size() == 0)
             callback();
         // Callback with argument
         else {
-            using DestinationSystem = std::tuple_element_t<0, Decomposer::ArgsTuple>;
+            using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
             using FlatSystem = std::remove_reference_t<DestinationSystem>;
 
             static_assert(Decomposer::IndexSequence.size() == 1 && std::is_base_of_v<FlatSystem, Internal::ASystem>
@@ -165,11 +165,23 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
                 "ECS::System::interact: Mismatching destination pipeline and destination system's pipeline");
 
             // Get system at runtime and call now
-            callback(parent()->getSystem<FlatSystem>(executorPipelineIndex()));
+            const auto system = getSystemOpaque(pipelineIndex, FlatSystem::Hash);
+            kFEnsure(system,
+                "ECS::System::interact: System '", FlatSystem::Name, "' is not registered (Pipeline: '", FlatSystem::ExecutorPipeline::Name, "')");
+            callback(*reinterpret_cast<FlatSystem *>(system));
         }
-    // If 'this' pipeline is not same as destination pipeline
+    };
+
+    // If 'this' pipeline is same as destination pipeline, invoke now
+    if constexpr (std::is_same_v<ExecutorPipeline, DestinationPipeline>) {
+        invoke(executorPipelineIndex(), std::forward<Callback>(callback));
+    // Else, send event to target pipeline
     } else {
-        // Send event to target pipeline
-        parent()->sendEvent<TargetPipeline>(std::forward<Callback>(callback));
+        const auto pipelineIndex = getPipelineIndex(TargetPipeline::Hash);
+        sendEventOpaque(pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] {
+            // 'pipelineIndex' could be cached but this would increase chances to use allocation
+            const auto pipelineIndex = getPipelineIndex(TargetPipeline::Hash);
+            invoke(pipelineIndex, callback);
+        });
     }
 }

@@ -7,6 +7,7 @@
 
 #include <Kube/Core/TupleUtils.hpp>
 #include <Kube/Core/Hash.hpp>
+#include <Kube/Core/Functor.hpp>
 #include <Kube/Flow/Graph.hpp>
 
 #include "Base.hpp"
@@ -86,7 +87,7 @@ public:
 
 
     /** @brief Function called whenever executor changes attached pipeline tick rate */
-    [[nodiscard]] inline void onTickRateChanged(const std::int64_t tickRate) noexcept { _tickRate = tickRate; }
+    inline void onTickRateChanged(const std::int64_t tickRate) noexcept { _tickRate = tickRate; }
 
     /** @brief Set executor pipeline index */
     void queryPipelineIndex(const Core::HashedName pipelineHash) noexcept;
@@ -103,6 +104,18 @@ public:
 
     /** @brief Removes a range of entities */
     void removeRange(const EntityRange range) noexcept;
+
+protected:
+    /** @brief Get pipeline index from pipeline runtime name */
+    [[nodiscard]] Core::Expected<std::uint32_t> getPipelineIndex(const Core::HashedName pipelineHash) const noexcept;
+
+    /** @brief Get opaque system using pipeline index & system hashed name
+     *  @return Returns nullptr if system doesn't exist */
+    [[nodiscard]] ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) noexcept;
+
+    /** @brief Send event using pipeline hashed name */
+    void sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) noexcept;
+
 
 private:
     // Cacheline 0

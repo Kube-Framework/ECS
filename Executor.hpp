@@ -218,13 +218,20 @@ public:
         { return _pipelines.clocks.at(pipelineIndex).isTimeBound(); }
 
 
-    /** @brief Get system reference */
+    /** @brief Get system reference
+     *  @note Abort if system doesn't exist */
     template<typename SystemType>
     [[nodiscard]] SystemType &getSystem(void) noexcept;
 
-    /** @brief Get system reference using pipeline index */
+    /** @brief Get system reference using pipeline index
+     *  @note Abort if system doesn't exist */
     template<typename SystemType>
     [[nodiscard]] SystemType &getSystem(const std::uint32_t pipelineIndex) noexcept;
+
+    /** @brief Get opaque system using pipeline & system indexes
+     *  @note Doesn't check anything */
+    [[nodiscard]] inline Internal::ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const std::uint32_t systemIndex) noexcept
+        { return _pipelines.systems.at(pipelineIndex).at(systemIndex).get(); }
 
 
     /** @brief Send an event to a system */

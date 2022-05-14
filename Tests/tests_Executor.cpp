@@ -4,10 +4,12 @@
  */
 
 #include <thread>
+#include <cmath>
 
 #include <gtest/gtest.h>
 
 #include <Kube/ECS/Executor.hpp>
+
 
 #define STRINGIFY(x) #x
 
@@ -15,10 +17,10 @@ using namespace kF;
 using namespace kF::Core::Literal;
 
 template<typename Callback>
-[[nodiscard]] static void SetupExponentialWorkImpl(Flow::Graph &graph, Flow::Task &parent,
+static void SetupExponentialWorkImpl(Flow::Graph &graph, Flow::Task &parent,
         const std::size_t iteration, const std::size_t maxIteration, Callback &&callback) noexcept
 {
-    for (auto i = 0; i < iteration; ++i) {
+    for (auto i = 0ul; i < iteration; ++i) {
         auto &node = graph.add(callback);
         node.after(parent);
         if (iteration * 2 != maxIteration)
@@ -27,7 +29,7 @@ template<typename Callback>
 }
 
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupExponentialWork(SystemType &system, const std::size_t depth, Callback &&callback) noexcept
+static void SetupExponentialWork(SystemType &system, const std::size_t depth, Callback &&callback) noexcept
 {
     kFEnsure(depth > 0, "Depth must not be zero");
 
@@ -35,7 +37,7 @@ template<typename SystemType, typename Callback>
     auto &root = system.taskGraph().add(callback);
 
     if (depth > 1)
-        SetupExponentialWorkImpl(graph, root, 2, std::pow(2, depth), std::forward<Callback>(callback));
+        SetupExponentialWorkImpl(graph, root, 2, static_cast<std::size_t>(std::pow(2ul, depth)), std::forward<Callback>(callback));
 }
 
 using SamplePipeline = ECS::PipelineTag<"Sample"_fixed>;
@@ -129,17 +131,17 @@ TEST(Executor, SampleTiming##WorkName##Hertz##Hz) \
 
 // Work types
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupNoWork(SystemType &, Callback &&) noexcept {}
+static void SetupNoWork(SystemType &, Callback &&) noexcept {}
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupNegligableWork(SystemType &system, Callback &&callback) noexcept { SetupExponentialWork(system, 1, std::forward<Callback>(callback)); }
+static void SetupNegligableWork(SystemType &system, Callback &&callback) noexcept { SetupExponentialWork(system, 1, std::forward<Callback>(callback)); }
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupLightWork(SystemType &system, Callback &&callback) noexcept      { SetupExponentialWork(system, 2, std::forward<Callback>(callback)); }
+static void SetupLightWork(SystemType &system, Callback &&callback) noexcept      { SetupExponentialWork(system, 2, std::forward<Callback>(callback)); }
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupMediumWork(SystemType &system, Callback &&callback) noexcept     { SetupExponentialWork(system, 3, std::forward<Callback>(callback)); }
+static void SetupMediumWork(SystemType &system, Callback &&callback) noexcept     { SetupExponentialWork(system, 3, std::forward<Callback>(callback)); }
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupHeavyWork(SystemType &system, Callback &&callback) noexcept      { SetupExponentialWork(system, 4, std::forward<Callback>(callback)); }
+static void SetupHeavyWork(SystemType &system, Callback &&callback) noexcept      { SetupExponentialWork(system, 4, std::forward<Callback>(callback)); }
 template<typename SystemType, typename Callback>
-[[nodiscard]] static void SetupHardcoreWork(SystemType &system, Callback &&callback) noexcept   { SetupExponentialWork(system, 5, std::forward<Callback>(callback)); }
+static void SetupHardcoreWork(SystemType &system, Callback &&callback) noexcept   { SetupExponentialWork(system, 5, std::forward<Callback>(callback)); }
 
 
 TEST(Executor, GUIScenario)

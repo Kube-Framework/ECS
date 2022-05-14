@@ -110,7 +110,7 @@ inline SystemType &kF::ECS::Executor::getSystem(const std::uint32_t pipelineInde
 {
     const auto systemIndex = getSystemIndex(pipelineIndex, SystemType::Hash);
     kFEnsure(systemIndex.success(),
-        "ECS::Executor::sendEvent: Couldn't find system '", SystemType::Name, "' inside pipeline '", SystemType::ExecutorPipeline::Name, '\'');
+        "ECS::Executor::getSystem: Couldn't find system '", SystemType::Name, "' inside pipeline '", SystemType::ExecutorPipeline::Name, '\'');
     return *reinterpret_cast<SystemType *>(_pipelines.systems.at(pipelineIndex).at(systemIndex.value()).get());
 }
 
@@ -133,12 +133,13 @@ template<typename Callback>
 inline void kF::ECS::Executor::sendEvent(const std::uint32_t pipelineIndex, Callback &&callback) noexcept
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
+
     bool res = false;
 
     // If the callback has a system reference as single argument
     if constexpr (Decomposer::IndexSequence.size() == 1) {
         // Retreive callback argument
-        using DestinationSystem = std::tuple_element_t<0, Decomposer::ArgsTuple>;
+        using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
         using FlatSystem = std::remove_reference_t<DestinationSystem>;
         static_assert(std::is_reference_v<DestinationSystem>,
             "ECS::Executor::sendEvent: Event callback invalid argument, must be a reference to any system");
