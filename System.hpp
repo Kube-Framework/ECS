@@ -8,6 +8,7 @@
 #include <Kube/Core/TupleUtils.hpp>
 #include <Kube/Core/Hash.hpp>
 #include <Kube/Core/Functor.hpp>
+#include <Kube/Core/Expected.hpp>
 #include <Kube/Flow/Graph.hpp>
 
 #include "Base.hpp"
