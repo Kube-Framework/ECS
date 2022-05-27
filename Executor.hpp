@@ -8,7 +8,7 @@
 #include <Kube/Core/Expected.hpp>
 #include <Kube/Core/MPSCQueue.hpp>
 #include <Kube/Core/TrivialFunctor.hpp>
-#include <Kube/Core/Functor.hpp>
+#include <Kube/Core/UniquePtr.hpp>
 #include <Kube/Flow/Scheduler.hpp>
 
 #include "System.hpp"
@@ -88,11 +88,11 @@ public:
 
     /** @brief Small vector optimized for pipeline storage */
     template<typename Type>
-    using PipelineSmallVector = Core::TinySmallVector<Type, OptimalPipelineCount, ECSAllocator>;
+    using PipelineSmallVector = Core::SmallVector<Type, OptimalPipelineCount, ECSAllocator>;
 
     /** @brief Small vector optimized for system storage per pipeline */
     template<typename Type>
-    using SystemSmallVector = Core::TinySmallVector<Type, OptimalSystemPerPipelineCount, ECSAllocator>;
+    using SystemSmallVector = Core::SmallVector<Type, OptimalSystemPerPipelineCount, ECSAllocator>;
 
     /** @brief Store the system names of a pipeline */
     using PipelineSystemNames = SystemSmallVector<Core::HashedName>;

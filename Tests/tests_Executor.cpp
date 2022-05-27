@@ -92,8 +92,8 @@ public:
     }
 
 private:
-    Core::TinyVector<std::int64_t> _samples {};
-    Core::TinyVector<std::size_t> _counts {};
+    Core::Vector<std::int64_t> _samples {};
+    Core::Vector<std::size_t> _counts {};
     std::atomic_size_t *_counter {};
 };
 

@@ -127,7 +127,7 @@ private:
     std::int64_t _tickRate {};
     Flow::GraphPtr _graph {};
     Entity _lastEntity {};
-    Core::TinyVector<EntityRange, ECSAllocator> _freeEntities {};
+    Core::Vector<EntityRange, ECSAllocator> _freeEntities {};
 };
 static_assert_alignof_cacheline(kF::ECS::Internal::ASystem);
 static_assert_sizeof_cacheline(kF::ECS::Internal::ASystem);
