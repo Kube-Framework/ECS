@@ -19,11 +19,16 @@ template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::Stati
 class alignas_cacheline kF::ECS::ComponentTable
 {
 public:
+    /** @brief Initializer of entity indexes */
+    static constexpr auto EntityIndexInitializer = [](EntityIndex * const begin, EntityIndex * const end) {
+        std::fill(begin, end, NullEntityIndex);
+    };
+
     /** @brief Type of stored component */
     using ValueType = ComponentType;
 
     /** @brief Sparse set that stores indexes of entities' components */
-    using IndexSparseSet = Core::SparseSet<Entity, EntityPageSize, Allocator, EntityIndex>;
+    using IndexSparseSet = Core::SparseSet<Entity, EntityPageSize, Allocator, EntityIndex, EntityIndexInitializer>;
 
     /** @brief List of active entities */
     using ActiveEntities = Core::Vector<Entity, Allocator, EntityIndex>;
@@ -32,9 +37,6 @@ public:
     using Components = Core::Vector<ComponentType, Allocator, EntityIndex>;
 
     static_assert(IndexSparseSet::IsSafeToClear, "There are no reason why index sparse set could not be safely cleared");
-
-    /** @brief Special null index */
-    static constexpr EntityIndex NullIndex = ~static_cast<EntityIndex>(0);
 
 
     /** @brief Get the number of components inside the table */
@@ -83,6 +85,15 @@ public:
     /** @brief Get an entity's component */
     [[nodiscard]] inline ComponentType &get(const Entity entity) noexcept { return _components.at(_indexSet.at(entity)); }
     [[nodiscard]] inline const ComponentType &get(const Entity entity) const noexcept { return _components.at(_indexSet.at(entity)); }
+
+
+    /** @brief Get the unstable index of an entity (NullEntityIndex if not found) */
+    [[nodiscard]] EntityIndex getUnstableIndex(const Entity entity) const noexcept;
+
+    /** @brief Get an entity's component using its unstable index */
+    [[nodiscard]] inline ComponentType &atIndex(const EntityIndex entityIndex) noexcept { return _components.at(entityIndex); }
+    [[nodiscard]] inline const ComponentType &atIndex(const EntityIndex entityIndex) const noexcept { return _components.at(entityIndex); }
+
 
     /** @brief Components begin / end iterators */
     [[nodiscard]] inline auto begin(void) noexcept { return _components.begin(); }

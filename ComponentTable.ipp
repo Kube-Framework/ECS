@@ -21,7 +21,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, ComponentType &&component) noexcept
 {
-    if (auto componentIndex = findIndex(entity); componentIndex != NullIndex) [[likely]] {
+    if (auto componentIndex = findIndex(entity); componentIndex != NullEntityIndex) [[likely]] {
         return get(entity) = std::move(component);
     } else {
         componentIndex = _entities.size();
@@ -36,7 +36,7 @@ template<typename Functor>
 inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, Functor &&functor) noexcept
 {
     ComponentType *ptr;
-    if (auto componentIndex = findIndex(entity); componentIndex != NullIndex) [[likely]] {
+    if (auto componentIndex = findIndex(entity); componentIndex != NullEntityIndex) [[likely]] {
         ptr = &get(entity);
     } else {
         componentIndex = _entities.size();
@@ -89,7 +89,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::r
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::tryRemove(const Entity entity) noexcept
 {
-    if (const auto componentIndex = findIndex(entity); componentIndex != NullIndex) [[likely]]
+    if (const auto componentIndex = findIndex(entity); componentIndex != NullEntityIndex) [[likely]]
         removeImpl(entity, componentIndex);
 }
 
@@ -176,6 +176,15 @@ inline ComponentType kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allo
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
+inline kF::ECS::EntityIndex kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::getUnstableIndex(const Entity entity) const noexcept
+{
+    if (_indexSet.pageExists(entity)) [[likely]]
+        return _indexSet.at(entity);
+    else
+        return NullEntityIndex;
+}
+
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::clear(void) noexcept
 {
     if constexpr (IndexSparseSet::IsSafeToClear) {
@@ -208,7 +217,7 @@ inline kF::ECS::EntityIndex kF::ECS::ComponentTable<ComponentType, EntityPageSiz
     if (it != _entities.end()) [[likely]]
         return static_cast<Entity>(std::distance(_entities.begin(), it));
     else [[unlikely]]
-        return NullIndex;
+        return NullEntityIndex;
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>

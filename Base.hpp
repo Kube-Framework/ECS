@@ -19,6 +19,10 @@ namespace kF::ECS
     /** @brief Entity index */
     using EntityIndex = Entity;
 
+    /** @brief Special null index */
+    static constexpr EntityIndex NullEntityIndex = ~static_cast<EntityIndex>(0);
+
+
     /** @brief Entity index range */
     struct alignas_eighth_cacheline EntityRange
     {
