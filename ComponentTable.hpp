@@ -83,8 +83,9 @@ public:
 
 
     /** @brief Get an entity's component */
-    [[nodiscard]] inline ComponentType &get(const Entity entity) noexcept { return _components.at(_indexSet.at(entity)); }
     [[nodiscard]] inline const ComponentType &get(const Entity entity) const noexcept { return _components.at(_indexSet.at(entity)); }
+    [[nodiscard]] inline ComponentType &get(const Entity entity) noexcept
+        { return const_cast<ComponentType &>(std::as_const(*this).get(entity)); }
 
 
     /** @brief Get the unstable index of an entity (NullEntityIndex if not found) */

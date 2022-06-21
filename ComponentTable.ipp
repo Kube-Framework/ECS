@@ -72,7 +72,7 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::a
     }
 
     // Insert components
-    _components.insertCopy(_components.end(), count, component);
+    _components.insertFill(_components.end(), count, component);
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
