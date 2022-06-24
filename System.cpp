@@ -23,8 +23,9 @@ ECS::Entity ECS::Internal::ASystem::add(void) noexcept
         auto &freeRange = _freeEntities.front();
         entity = freeRange.begin++;
         if (freeRange.begin == freeRange.end) [[unlikely]]
-            _freeEntities.pop();
+            _freeEntities.erase(_freeEntities.begin());
     }
+    kFInfo("ECS::Internal::ASystem::add: ", entity);
     return entity;
 }
 
@@ -62,6 +63,7 @@ ECS::EntityRange ECS::Internal::ASystem::addRange(const Entity count) noexcept
 
 void ECS::Internal::ASystem::remove(const Entity entity) noexcept
 {
+    kFInfo("ECS::Internal::ASystem::remove: ", entity);
     if (entity == _lastEntity) [[likely]]
         --_lastEntity;
     else {

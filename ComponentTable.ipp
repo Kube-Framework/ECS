@@ -63,10 +63,10 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::a
     }
 
     // Insert entities & indexes
-    _entities.insertDefault(_entities.end(), count);
-    for (Entity i = lastIndex, it = range.begin; it != range.end; ++i, ++it) {
-        _entities[i] = it;
-    }
+    _entities.insertCustom(_entities.end(), count, [range](const auto count, const auto out) {
+        for (Entity i = 0; i != count; ++i)
+            out[i] = range.begin + i;
+    });
     for (Entity i = lastIndex, it = range.begin; it != range.end; ++i, ++it) {
         _indexSet.add(it, i);
     }

@@ -44,7 +44,7 @@ public:
 
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] inline bool exists(const Entity entity) const noexcept
-        { return _entities.find(entity) != _entities.end(); }
+        { return getUnstableIndex(entity) != NullEntityIndex; }
 
 
     /** @brief Add a component into the table */

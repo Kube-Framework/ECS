@@ -162,10 +162,10 @@ public:
     using ComponentTablesTuple = std::tuple<ComponentTable<ComponentTypes, EntityPageSize, Allocator>...>;
 
     /** @brief Number of component tables in this system */
-    static constexpr Entity ComponentCount = sizeof...(ComponentTypes);
+    static constexpr std::size_t ComponentCount = sizeof...(ComponentTypes);
 
     /** @brief Entity mask of this system */
-    static constexpr Entity EntityMask = ~static_cast<Entity>(0) >> ComponentCount;
+    static constexpr Entity EntityMask = ~static_cast<Entity>(0) >> static_cast<Entity>(ComponentCount);
 
     /** @brief Component mask of this system */
     static constexpr Entity ComponentMask = ~EntityMask;
