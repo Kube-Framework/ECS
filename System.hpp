@@ -207,7 +207,7 @@ public:
     /** @brief Creates an entity with components */
     template<typename ...Components>
         requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
-    [[nodiscard]] Entity add(Components &&...components) noexcept;
+    Entity add(Components &&...components) noexcept;
 
     /** @brief Creates a range of entities */
     using Internal::ASystem::addRange;
@@ -215,7 +215,7 @@ public:
     /** @brief Creates a range of entities with components */
     template<typename ...Components>
         requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
-    [[nodiscard]] EntityRange addRange(const Entity count, Components &&...components) noexcept;
+    EntityRange addRange(const Entity count, Components &&...components) noexcept;
 
 
     /** @brief Attach components to an entity */
