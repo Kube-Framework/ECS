@@ -13,22 +13,24 @@ namespace kF::ECS
 {
     template<typename ComponentType, Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
     class ComponentTable;
+
+    namespace Internal
+    {
+        /** @brief Initializer of entity indexes */
+        constexpr void EntityIndexInitializer(EntityIndex * const begin, EntityIndex * const end) noexcept
+            { std::fill(begin, end, NullEntityIndex); }
+    }
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator = kF::Core::DefaultStaticAllocator>
 class alignas_cacheline kF::ECS::ComponentTable
 {
 public:
-    /** @brief Initializer of entity indexes */
-    static constexpr auto EntityIndexInitializer = [](EntityIndex * const begin, EntityIndex * const end) {
-        std::fill(begin, end, NullEntityIndex);
-    };
-
     /** @brief Type of stored component */
     using ValueType = ComponentType;
 
     /** @brief Sparse set that stores indexes of entities' components */
-    using IndexSparseSet = Core::SparseSet<Entity, EntityPageSize, Allocator, EntityIndex, EntityIndexInitializer>;
+    using IndexSparseSet = Core::SparseSet<Entity, EntityPageSize, Allocator, EntityIndex, &Internal::EntityIndexInitializer>;
 
     /** @brief List of active entities */
     using ActiveEntities = Core::Vector<Entity, Allocator, EntityIndex>;
@@ -126,16 +128,16 @@ public:
     void release(void) noexcept;
 
 private:
-    IndexSparseSet _indexSet {};
-    ActiveEntities _entities {};
-    Components _components {};
-
-
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] EntityIndex findIndex(const Entity entity) const noexcept;
 
     /** @brief Hiden implementation of remove function */
     void removeImpl(const Entity entity, const EntityIndex componentIndex) noexcept;
+
+
+    IndexSparseSet _indexSet {};
+    ActiveEntities _entities {};
+    Components _components {};
 };
 
 #include "ComponentTable.ipp"

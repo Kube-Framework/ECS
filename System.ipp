@@ -118,7 +118,7 @@ template<typename ...Components>
     requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafe(const Entity entity) noexcept
 {
-    ((getTable<Components>.remove(entity)), ...);
+    ((getTable<Components>().remove(entity)), ...);
     Internal::ASystem::remove(entity);
 }
 
@@ -127,7 +127,7 @@ template<typename ...Components>
     requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafeRange(const EntityRange range) noexcept
 {
-    ((getTable<Components>.removeRange(range)), ...);
+    ((getTable<Components>().removeRange(range)), ...);
     Internal::ASystem::removeRange(range);
 }
 
