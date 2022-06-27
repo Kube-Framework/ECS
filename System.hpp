@@ -49,7 +49,7 @@ namespace kF::ECS
 
     /** @brief Concept that ensure multiple Components match a ComponentsTuple */
     template<typename ComponentsTuple, typename ...Components>
-    concept SystemComponentRequirements = (Core::TupleContainsElement<Components, ComponentsTuple> && ...);
+    concept SystemComponentRequirements = (Core::TupleContainsElement<std::remove_cvref_t<Components>, ComponentsTuple> && ...);
 }
 
 /** @brief Abstract class of any system */
@@ -284,11 +284,11 @@ public:
     template<typename Component>
         requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline auto &getTable(void) noexcept
-        { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
+        { return std::get<Core::TupleElementIndex<std::remove_cvref_t<Component>, ComponentsTuple>>(_tables); }
     template<typename Component>
         requires kF::ECS::SystemComponentRequirements<ComponentsTuple, Component>
     [[nodiscard]] inline const auto &getTable(void) const noexcept
-        { return std::get<Core::TupleElementIndex<Component, ComponentsTuple>>(_tables); }
+        { return std::get<Core::TupleElementIndex<std::remove_cvref_t<Component>, ComponentsTuple>>(_tables); }
 
 
     /** @brief Get a component using its type and an entity */
