@@ -19,6 +19,9 @@ namespace kF::ECS
     /** @brief Entity index */
     using EntityIndex = Entity;
 
+    /** @brief Special null entity */
+    static constexpr Entity NullEntity = ~static_cast<Entity>(0);
+
     /** @brief Special null index */
     static constexpr EntityIndex NullEntityIndex = ~static_cast<EntityIndex>(0);
 
