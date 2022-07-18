@@ -119,8 +119,6 @@ ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint3
         return nullptr;
 }
 
-#include <functional>
-
 void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) noexcept
 {
     static_assert(std::is_same_v<Core::Functor<void(void), ECSAllocator>, Executor::PipelineEvent>,
