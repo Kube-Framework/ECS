@@ -226,12 +226,12 @@ public:
     /** @brief Attach components to an entity, if the component already exists then update it */
     template<typename ...Components>
         requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
-    void attachUpdate(const Entity entity, Components &&...components) noexcept;
+    void tryAttach(const Entity entity, Components &&...components) noexcept;
 
     /** @brief Try to update components of an entity
      *  @note If a component doesn't exists, it is created */
     template<typename ...Functors>
-    void attachUpdate(const Entity entity, Functors &&...functors) noexcept;
+    void tryAttach(const Entity entity, Functors &&...functors) noexcept;
 
     /** @brief Attach components to a range of entities */
     template<typename ...Components>

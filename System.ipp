@@ -41,14 +41,14 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
     requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
-inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attachUpdate(const Entity entity, Components &&...components) noexcept
+inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryAttach(const Entity entity, Components &&...components) noexcept
 {
     ((getTable<Components>().addUpdate(entity, std::forward<Components>(components))), ...);
 }
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Functors>
-inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attachUpdate(const Entity entity, Functors &&...functors) noexcept
+inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryAttach(const Entity entity, Functors &&...functors) noexcept
 {
     const auto apply = [this]<typename Functor>(Functor &&functor) {
         using Decomposer = Core::FunctionDecomposerHelper<Functor>;
