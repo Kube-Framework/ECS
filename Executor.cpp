@@ -72,7 +72,7 @@ Core::Expected<std::uint32_t> ECS::Executor::getSystemIndex(const std::uint32_t 
 
 void ECS::Executor::stop(void) noexcept
 {
-    kFEnsure(_eventQueue.push([this] {
+    kFEnsure(_eventQueue.push([this] noexcept {
         waitIDLE();
         return false;
     }), "ECS::Executor::stop: Critical event couldn't not get received");
