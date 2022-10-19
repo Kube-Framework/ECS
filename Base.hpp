@@ -33,8 +33,11 @@ namespace kF::ECS
         Entity end {};
 
         /** @brief Comparison operators */
-        [[nodiscard]] inline bool operator==(const EntityRange &other) const noexcept = default;
-        [[nodiscard]] inline bool operator!=(const EntityRange &other) const noexcept = default;
+        [[nodiscard]] constexpr bool operator==(const EntityRange &other) const noexcept = default;
+        [[nodiscard]] constexpr bool operator!=(const EntityRange &other) const noexcept = default;
+
+        /** @brief Check if an entity is inside the range */
+        [[nodiscard]] constexpr bool contains(const ECS::Entity entity) const noexcept { return (entity >= begin) & (entity < end); }
     };
 
     /** @brief Number of bits in entity type */
