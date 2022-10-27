@@ -127,6 +127,14 @@ public:
     /** @brief Release the table */
     void release(void) noexcept;
 
+
+    /** @brief Traverse table by iterating through pairs of (Entity / Component)
+     *  @note If the callback returns a boolean, traversal is stopped when 'false' is returned */
+    template<typename Callback>
+        requires std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
+            || std::is_invocable_r_v<Callback, bool, kF::ECS::Entity, ComponentType &>
+    void traverse(Callback &&callback) noexcept;
+
 private:
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] EntityIndex findIndex(const Entity entity) const noexcept;

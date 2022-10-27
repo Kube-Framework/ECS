@@ -243,3 +243,19 @@ inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::s
         }
     }
 }
+
+template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
+template<typename Callback>
+    requires std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
+        || std::is_invocable_r_v<Callback, bool, kF::ECS::Entity, ComponentType &>
+inline void kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::traverse(Callback &&callback) noexcept
+{
+    for (ECS::EntityIndex index {}, max = count(); index != max; ++index) {
+        if constexpr (std::is_invocable_r_v<Callback, bool, ECS::Entity, ComponentType &>) {
+            if (!callback(_entities.at(index), _components.at(index)))
+                break;
+        } else {
+            callback(_entities.at(index), _components.at(index));
+        }
+    }
+}
