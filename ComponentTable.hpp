@@ -13,13 +13,6 @@ namespace kF::ECS
 {
     template<typename ComponentType, Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
     class ComponentTable;
-
-    namespace Internal
-    {
-        /** @brief Initializer of entity indexes */
-        constexpr void EntityIndexInitializer(EntityIndex * const begin, EntityIndex * const end) noexcept
-            { std::fill(begin, end, NullEntityIndex); }
-    }
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator = kF::Core::DefaultStaticAllocator>
@@ -55,12 +48,12 @@ public:
 
     /** @brief Try to add a component into the table
      *  @note If the entity already attached 'ComponentType', the old value is updated */
-    ComponentType &addUpdate(const Entity entity, ComponentType &&component) noexcept;
+    ComponentType &tryAdd(const Entity entity, ComponentType &&component) noexcept;
 
     /** @brief Try to update component of an entity
      *  @note If a component doesn't exists, it is created */
     template<typename Functor>
-    ComponentType &addUpdate(const Entity entity, Functor &&functor) noexcept;
+    ComponentType &tryAdd(const Entity entity, Functor &&functor) noexcept;
 
     /** @brief Add a range of components into the table */
     void addRange(const EntityRange range, const ComponentType &component) noexcept;

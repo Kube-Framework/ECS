@@ -47,4 +47,11 @@ namespace kF::ECS
     /** @brief Convert hertz into time rate */
     [[nodiscard]] constexpr std::int64_t HzToRate(const std::int64_t hertz) noexcept
         { return 1'000'000'000ll / hertz; }
+
+    namespace Internal
+    {
+        /** @brief Initializer of entity indexes */
+        constexpr void EntityIndexInitializer(EntityIndex * const begin, EntityIndex * const end) noexcept
+            { std::fill(begin, end, NullEntityIndex); }
+    }
 }

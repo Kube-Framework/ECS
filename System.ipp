@@ -43,7 +43,7 @@ template<typename ...Components>
     requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryAttach(const Entity entity, Components &&...components) noexcept
 {
-    ((getTable<Components>().addUpdate(entity, std::forward<Components>(components))), ...);
+    ((getTable<Components>().tryAdd(entity, std::forward<Components>(components))), ...);
 }
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
@@ -53,7 +53,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
     const auto apply = [this]<typename Functor>(Functor &&functor) {
         using Decomposer = Core::FunctionDecomposerHelper<Functor>;
         using Component = std::remove_cvref_t<std::tuple_element_t<0, typename Decomposer::ArgsTuple>>;
-        getTable<Component>().addUpdate(std::forward<Functor>(functor));
+        getTable<Component>().tryAdd(std::forward<Functor>(functor));
     };
 
     ((apply(std::forward<Functors>(functors))), ...);

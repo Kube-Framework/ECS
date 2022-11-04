@@ -19,7 +19,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
 }
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
-inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, ComponentType &&component) noexcept
+inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::tryAdd(const Entity entity, ComponentType &&component) noexcept
 {
     if (auto componentIndex = findIndex(entity); componentIndex != NullEntityIndex) [[likely]] {
         return get(entity) = std::move(component);
@@ -33,7 +33,7 @@ inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, All
 
 template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 template<typename Functor>
-inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::addUpdate(const Entity entity, Functor &&functor) noexcept
+inline ComponentType &kF::ECS::ComponentTable<ComponentType, EntityPageSize, Allocator>::tryAdd(const Entity entity, Functor &&functor) noexcept
 {
     ComponentType *ptr;
     if (auto componentIndex = findIndex(entity); componentIndex != NullEntityIndex) [[likely]] {
