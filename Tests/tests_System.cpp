@@ -206,3 +206,20 @@ TEST(System, TwoComponents)
     ASSERT_FALSE(foo.getTable<BarA>().exists(entityC));
     ASSERT_FALSE(foo.getTable<BarB>().exists(entityC));
 }
+
+class StableSystem : public ECS::System<
+    "Bar", DummyPipeline, Core::DefaultStaticAllocator,
+    ECS::StableComponent<BarB>
+>
+{
+public:
+};
+
+TEST(System, StableComponent)
+{
+    ECS::Executor executor;
+    executor.addPipeline<DummyPipeline>(60);
+    auto &system = executor.addSystem<StableSystem>();
+
+    system.pack<BarB>();
+}

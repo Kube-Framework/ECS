@@ -7,6 +7,8 @@ kube_add_library(ECS
         Executor.hpp
         Executor.ipp
         Pipeline.hpp
+        StableComponentTable.hpp
+        StableComponentTable.ipp
         System.cpp
         System.hpp
         System.ipp

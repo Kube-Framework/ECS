@@ -7,9 +7,23 @@
 
 #include "System.hpp"
 
+
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-        requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
+inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::pack(void) noexcept
+{
+    constexpr auto Pack = []<typename Table>(Table &table) {
+        static_assert(Table::IsStable == true, "ECS::System::pack: Components must be declared Stable to enable manual pack, else they are always packed");
+        table.pack();
+    };
+
+    (Pack(getTable<Components>()), ...);
+}
+
+template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
+template<typename ...Components>
+        requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline kF::ECS::Entity kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::add(Components &&...components) noexcept
 {
     const auto entity = add();
@@ -21,7 +35,7 @@ inline kF::ECS::Entity kF::ECS::System<Literal, TargetPipeline, Allocator, Compo
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline kF::ECS::EntityRange kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::addRange(const Entity count, Components &&...components) noexcept
 {
     const auto range = addRange(count);
@@ -32,7 +46,7 @@ inline kF::ECS::EntityRange kF::ECS::System<Literal, TargetPipeline, Allocator, 
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attach(const Entity entity, Components &&...components) noexcept
 {
     ((getTable<Components>().add(entity, std::forward<Components>(components))), ...);
@@ -40,7 +54,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryAttach(const Entity entity, Components &&...components) noexcept
 {
     ((getTable<Components>().tryAdd(entity, std::forward<Components>(components))), ...);
@@ -61,7 +75,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::attachRange(const EntityRange range, Components &&...components) noexcept
 {
     ((getTable<Components>().addRange(range, std::forward<Components>(components))), ...);
@@ -69,7 +83,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::dettach(const Entity entity) noexcept
 {
     ((getTable<Components>().remove(entity)), ...);
@@ -77,7 +91,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryDettach(const Entity entity) noexcept
 {
     ((getTable<Components>().tryRemove(entity)), ...);
@@ -85,7 +99,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::dettachRange(const EntityRange range) noexcept
 {
     ((getTable<Components>().removeRange(range)), ...);
@@ -115,7 +129,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafe(const Entity entity) noexcept
 {
     ((getTable<Components>().remove(entity)), ...);
@@ -124,7 +138,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
-    requires kF::ECS::SystemComponentRequirements<std::tuple<ComponentTypes...>, Components...>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::removeUnsafeRange(const EntityRange range) noexcept
 {
     ((getTable<Components>().removeRange(range)), ...);

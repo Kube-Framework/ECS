@@ -11,31 +11,37 @@
 
 namespace kF::ECS
 {
-    template<typename ComponentType, Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
+    template<typename ComponentType, kF::ECS::EntityIndex EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
     class ComponentTable;
 }
 
-template<typename ComponentType, kF::ECS::Entity EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator = kF::Core::DefaultStaticAllocator>
+template<typename ComponentType, kF::ECS::EntityIndex EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator = kF::Core::DefaultStaticAllocator>
 class alignas_cacheline kF::ECS::ComponentTable
 {
 public:
+    /** @brief Is table stable ? */
+    static constexpr bool IsStable = false;
+
+
     /** @brief Type of stored component */
     using ValueType = ComponentType;
 
     /** @brief Sparse set that stores indexes of entities' components */
     using IndexSparseSet = Core::SparseSet<Entity, EntityPageSize, Allocator, EntityIndex, &Internal::EntityIndexInitializer>;
 
-    /** @brief List of active entities */
-    using ActiveEntities = Core::Vector<Entity, Allocator, EntityIndex>;
+    /** @brief List of entities */
+    using Entities = Core::Vector<Entity, Allocator, EntityIndex>;
 
     /** @brief List of entities' components */
     using Components = Core::Vector<ComponentType, Allocator, EntityIndex>;
 
-    static_assert(IndexSparseSet::IsSafeToClear, "There are no reason why index sparse set could not be safely cleared");
+    static_assert(IndexSparseSet::IsSafeToClear, "ECS::ComponentTable: There are no reason why index sparse set could not be safely cleared");
+    static_assert(EntityPageSize != 0, "ECS::ComponentTable: Entity page size cannot be null");
+
 
 
     /** @brief Get the number of components inside the table */
-    [[nodiscard]] EntityIndex count(void) const noexcept { return _entities.size(); }
+    [[nodiscard]] inline EntityIndex count(void) const noexcept { return _entities.size(); }
 
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] inline bool exists(const Entity entity) const noexcept
@@ -56,7 +62,8 @@ public:
     ComponentType &tryAdd(const Entity entity, Functor &&functor) noexcept;
 
     /** @brief Add a range of components into the table */
-    void addRange(const EntityRange range, const ComponentType &component) noexcept;
+    template<typename ...Args>
+    void addRange(const EntityRange range, const Args &...args) noexcept;
 
 
     /** @brief Remove a component from the table
@@ -64,8 +71,9 @@ public:
     void remove(const Entity entity) noexcept;
 
     /** @brief Try to remove a component from the table
-     *  @note The entity can be inside table, if it isn't this function does nothing */
-    void tryRemove(const Entity entity) noexcept;
+     *  @note The entity can be inside table, if it isn't this function does nothing
+     *  @return True if the component has been removed */
+    bool tryRemove(const Entity entity) noexcept;
 
     /** @brief Remove a range of components from the table
      *  @note The range of entities can be inside table, if none are present this function does nothing */
@@ -78,7 +86,8 @@ public:
 
 
     /** @brief Get an entity's component */
-    [[nodiscard]] inline const ComponentType &get(const Entity entity) const noexcept { return _components.at(_indexSet.at(entity)); }
+    [[nodiscard]] inline const ComponentType &get(const Entity entity) const noexcept
+        { return _components.at(_indexSet.at(entity)); }
     [[nodiscard]] inline ComponentType &get(const Entity entity) noexcept
         { return const_cast<ComponentType &>(std::as_const(*this).get(entity)); }
 
@@ -87,21 +96,27 @@ public:
     [[nodiscard]] EntityIndex getUnstableIndex(const Entity entity) const noexcept;
 
     /** @brief Get an entity's component using its unstable index */
-    [[nodiscard]] inline ComponentType &atIndex(const EntityIndex entityIndex) noexcept { return _components.at(entityIndex); }
-    [[nodiscard]] inline const ComponentType &atIndex(const EntityIndex entityIndex) const noexcept { return _components.at(entityIndex); }
+    [[nodiscard]] inline ComponentType &atIndex(const EntityIndex entityIndex) noexcept
+        { return _components.at(entityIndex); }
+    [[nodiscard]] inline const ComponentType &atIndex(const EntityIndex entityIndex) const noexcept
+        { return _components.at(entityIndex); }
 
 
     /** @brief Components begin / end iterators */
     [[nodiscard]] inline auto begin(void) noexcept { return _components.begin(); }
     [[nodiscard]] inline auto begin(void) const noexcept { return _components.begin(); }
+    [[nodiscard]] inline auto cbegin(void) const noexcept { return _components.begin(); }
     [[nodiscard]] inline auto end(void) noexcept { return _components.end(); }
     [[nodiscard]] inline auto end(void) const noexcept { return _components.end(); }
+    [[nodiscard]] inline auto cend(void) const noexcept { return _components.end(); }
 
     /** @brief Components reverse begin / end iterators */
     [[nodiscard]] inline auto rbegin(void) noexcept { return _components.rbegin(); }
     [[nodiscard]] inline auto rbegin(void) const noexcept { return _components.rbegin(); }
+    [[nodiscard]] inline auto crbegin(void) const noexcept { return _components.rbegin(); }
     [[nodiscard]] inline auto rend(void) noexcept { return _components.rend(); }
     [[nodiscard]] inline auto rend(void) const noexcept { return _components.rend(); }
+    [[nodiscard]] inline auto crend(void) const noexcept { return _components.rend(); }
 
 
     /** @brief Get registered entity list */
@@ -121,23 +136,30 @@ public:
     void release(void) noexcept;
 
 
-    /** @brief Traverse table by iterating through pairs of (Entity / Component)
+    /** @brief Traverse table with a callback taking (Entity, Component &) as arguments or only (Component &)
      *  @note If the callback returns a boolean, traversal is stopped when 'false' is returned */
     template<typename Callback>
-        requires std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
-            || std::is_invocable_r_v<Callback, bool, kF::ECS::Entity, ComponentType &>
+        requires std::is_invocable_v<Callback, ComponentType &>
+            || std::is_invocable_v<Callback, kF::ECS::Entity>
+            || std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
     void traverse(Callback &&callback) noexcept;
 
 private:
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] EntityIndex findIndex(const Entity entity) const noexcept;
 
+
+    /** @brief Hiden implementation of add function */
+    template<typename ...Args>
+    ComponentType &addImpl(const Entity entity, Args &&...args) noexcept;
+
+
     /** @brief Hiden implementation of remove function */
-    void removeImpl(const Entity entity, const EntityIndex componentIndex) noexcept;
+    void removeImpl(const Entity entity, const EntityIndex entityIndex) noexcept;
 
 
     IndexSparseSet _indexSet {};
-    ActiveEntities _entities {};
+    Entities _entities {};
     Components _components {};
 };
 

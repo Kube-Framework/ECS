@@ -38,6 +38,9 @@ namespace kF::ECS
 
         /** @brief Check if an entity is inside the range */
         [[nodiscard]] constexpr bool contains(const ECS::Entity entity) const noexcept { return (entity >= begin) & (entity < end); }
+
+        /** @brief Get entity range size */
+        [[nodiscard]] constexpr EntityIndex size(void) const noexcept { return end - begin; }
     };
 
     /** @brief Number of bits in entity type */
