@@ -144,6 +144,15 @@ public:
             || std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
     void traverse(Callback &&callback) noexcept;
 
+    /** @brief Traverse table with a callback taking (Entity, const Component &) as arguments or only (const Component &)
+     *  @note If the callback returns a boolean, traversal is stopped when 'false' is returned */
+    template<typename Callback>
+        requires std::is_invocable_v<Callback, const ComponentType &>
+            || std::is_invocable_v<Callback, kF::ECS::Entity>
+            || std::is_invocable_v<Callback, kF::ECS::Entity, const ComponentType &>
+    inline void traverse(Callback &&callback) const noexcept
+        { const_cast<ComponentTable &>(*this).traverse(std::forward<Callback>(callback)); }
+
 private:
     /** @brief Check if an entity exists in the sparse set */
     [[nodiscard]] EntityIndex findIndex(const Entity entity) const noexcept;
