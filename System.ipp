@@ -153,14 +153,14 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
     using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
     using FlatSystem = std::remove_reference_t<DestinationSystem>;
 
-    interact<FlatSystem::ExecutorPipeline>(std::forward<Callback>(callback));
+    interact<typename FlatSystem::ExecutorPipeline>(std::forward<Callback>(callback));
 }
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename DestinationPipeline, typename Callback>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::interact(Callback &&callback) const noexcept
 {
-    const auto invoke = [this](const auto pipelineIndex, const auto &callback) {
+    const auto invoke = [this](const auto &callback) {
         using Decomposer = Core::FunctionDecomposerHelper<Callback>;
 
         // Callback without argument
@@ -170,32 +170,37 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
         else {
             using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
             using FlatSystem = std::remove_reference_t<DestinationSystem>;
+            using ExecutorPipeline = typename FlatSystem::ExecutorPipeline;
 
-            static_assert(Decomposer::IndexSequence.size() == 1 && std::is_base_of_v<FlatSystem, Internal::ASystem>
+            static_assert(Decomposer::IndexSequence.size() == 1 && std::is_base_of_v<Internal::ASystem, FlatSystem>
                 && std::is_reference_v<DestinationSystem>,
                 "ECS::System::interact: Event callback must only have one argument that must be a reference to any system");
 
-            static_assert(std::is_same_v<DestinationPipeline, FlatSystem::ExecutorPipeline>,
+            static_assert(std::is_same_v<DestinationPipeline, ExecutorPipeline>,
                 "ECS::System::interact: Mismatching destination pipeline and destination system's pipeline");
 
             // Get system at runtime and call now
-            const auto system = getSystemOpaque(pipelineIndex, FlatSystem::Hash);
+            const auto pipelineIndex = getPipelineIndex(DestinationPipeline::Hash);
+            kFEnsure(pipelineIndex.success(),
+                "ECS::System::interact: Pipeline '", DestinationPipeline::Name, "' is not registered");
+            const auto system = getSystemOpaque(*pipelineIndex, FlatSystem::Hash);
             kFEnsure(system,
-                "ECS::System::interact: System '", FlatSystem::Name, "' is not registered (Pipeline: '", FlatSystem::ExecutorPipeline::Name, "')");
+                "ECS::System::interact: System '", FlatSystem::Name, "' is not registered (Pipeline: '", ExecutorPipeline::Name, "')");
             callback(*reinterpret_cast<FlatSystem *>(system));
         }
     };
 
     // If 'this' pipeline is same as destination pipeline, invoke now
     if constexpr (std::is_same_v<ExecutorPipeline, DestinationPipeline>) {
-        invoke(executorPipelineIndex(), std::forward<Callback>(callback));
+        invoke(std::forward<Callback>(callback));
     // Else, send event to target pipeline
     } else {
-        const auto pipelineIndex = getPipelineIndex(TargetPipeline::Hash);
-        sendEventOpaque(pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] {
+        const auto pipelineIndex = getPipelineIndex(DestinationPipeline::Hash);
+        kFEnsure(pipelineIndex.success(),
+            "ECS::System::interact: Pipeline '", DestinationPipeline::Name, "' is not registered");
+        sendEventOpaque(*pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] {
             // 'pipelineIndex' could be cached but this would increase chances to use allocation
-            const auto pipelineIndex = getPipelineIndex(TargetPipeline::Hash);
-            invoke(pipelineIndex, callback);
+            invoke(callback);
         });
     }
 }

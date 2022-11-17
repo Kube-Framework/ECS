@@ -165,10 +165,10 @@ protected:
 
     /** @brief Get opaque system using pipeline index & system hashed name
      *  @return Returns nullptr if system doesn't exist */
-    [[nodiscard]] ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) noexcept;
+    [[nodiscard]] ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) const noexcept;
 
     /** @brief Send event using pipeline hashed name */
-    void sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) noexcept;
+    void sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) const noexcept;
 
 
 private:

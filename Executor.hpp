@@ -119,6 +119,9 @@ public:
         /** @brief Get tick rate from masked value */
         [[nodiscard]] inline std::int64_t tickRate(void) const noexcept { return maskedTickRate & TickRateMask; }
 
+        /** @brief Get tick rate from masked value */
+        inline void setTickRate(const std::int64_t value) noexcept { maskedTickRate = (value & TickRateMask) | (maskedTickRate & TimeBoundMask); }
+
         /** @brief Get time bound state from masked value */
         [[nodiscard]] inline bool isTimeBound(void) const noexcept { return maskedTickRate & TimeBoundMask; }
     };
@@ -212,6 +215,9 @@ public:
     /** @brief Get pipeline tick rate from pipeline index */
     [[nodiscard]] inline std::int64_t getPipelineTickRate(const std::uint32_t pipelineIndex) const noexcept
         { return _pipelines.clocks.at(pipelineIndex).tickRate(); }
+
+    /** @brief Get pipeline tick rate from pipeline index */
+    void setPipelineHertz(const std::uint32_t pipelineIndex, const std::int64_t frequencyHz) noexcept;
 
     /** @brief Get pipeline time bound state from pipeline index */
     [[nodiscard]] inline bool isPipelineTimeBound(const std::uint32_t pipelineIndex) const noexcept

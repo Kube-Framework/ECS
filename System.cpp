@@ -111,7 +111,7 @@ Core::Expected<std::uint32_t> ECS::Internal::ASystem::getPipelineIndex(const Cor
     return parent().getPipelineIndex(pipelineHash);
 }
 
-ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) noexcept
+ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) const noexcept
 {
     if (const auto systemIndex = parent().getSystemIndex(pipelineIndex, systemName); systemIndex.success()) [[likely]]
         return parent().getSystemOpaque(pipelineIndex, systemIndex.value());
@@ -119,7 +119,7 @@ ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint3
         return nullptr;
 }
 
-void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) noexcept
+void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) const noexcept
 {
     static_assert(std::is_same_v<Core::Functor<void(void), ECSAllocator>, Executor::PipelineEvent>,
         "Please update this function to keep perfect functor forwarding");
