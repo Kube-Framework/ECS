@@ -529,6 +529,51 @@ TEST(StableComponentTable, PackBigHole)
     ASSERT_EQ(std::count(table.entities().begin(), table.entities().end(), ECS::NullEntity), 0);
 }
 
+TEST(StableComponentTable, PackBug01)
+{
+    constexpr ECS::Entity Entities[] {
+        230, 231, 241, 243, 244, 245, 238, 248, 249, 250, 261, 270, 279, 283, 286, 288,
+        4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+        103, 102, 101, 100, 99, 91, 90, 89, 86, 223, 80, 211, 77, 75, 199, 71, 187, 68, 175, 65, 63, 163,
+        59, 151, 56, 139, 53, 51, 127, 47, 115, 44, 42, 37, 33, 31, 29, 21, 17, 15, 13, 5
+    };
+    constexpr ECS::EntityIndex Tombstones[] {
+        23, 22, 21, 20, 19, 18, 17, 16
+    };
+
+    StableComponentTableType table;
+
+    // Add
+    auto removeCount = 0;
+    for (auto entity : Entities) {
+        if (entity != ECS::NullEntity)
+            table.add(entity, std::make_unique<int>(static_cast<int>(entity)));
+        else {
+            const auto toAdd = ECS::NullEntity - ++removeCount;
+            table.add(ECS::NullEntity - ++removeCount, std::make_unique<int>(static_cast<int>(toAdd)));
+        }
+    }
+    ASSERT_EQ(table.count(), std::size(Entities));
+
+    // Remove
+    for (auto tombstone : Tombstones) {
+        table.remove(table.entities().at(tombstone));
+    }
+    ASSERT_EQ(table.count(), std::size(Entities) - std::size(Tombstones));
+    ASSERT_EQ(table.entities().size(), std::size(Entities));
+
+    // Pack
+    table.pack();
+    ASSERT_EQ(table.entities().size(), std::size(Entities) - std::size(Tombstones));
+    for (auto entity : Entities) {
+        if (entity != ECS::NullEntity) {
+            ASSERT_EQ(static_cast<ECS::Entity>(*table.get(entity)), entity);
+        }
+    }
+    table.traverse([&](const ECS::Entity entity) {
+        ASSERT_NE(std::find(std::begin(Entities), std::end(Entities), entity), std::end(Entities));
+    });
+}
 
 TEST(StableComponentTable, Random)
 {

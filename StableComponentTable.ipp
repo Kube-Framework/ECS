@@ -64,7 +64,11 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
         --last;
         Entity &target = _entities.at(*it);
         target = _entities.at(last);
-        atIndex(*it) = std::move(atIndex(last));
+        auto &componentTarget = atIndex(last);
+        insertComponent(*it, std::move(componentTarget));
+        if constexpr (!std::is_trivially_destructible_v<ComponentType>) {
+            componentTarget.~ComponentType();
+        }
         _indexSet.at(target) = *it;
         while (last && _entities.at(last - 1u) == NullEntity)
             --last;
@@ -268,10 +272,12 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
 template<typename ComponentType, kF::ECS::EntityIndex ComponentPageSize, kF::ECS::EntityIndex EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, EntityPageSize, Allocator>::destroyComponents(void) noexcept
 {
-    for (ECS::EntityIndex index {}; const auto entity : _entities) {
-        if (entity != ECS::NullEntity) [[likely]]
-            atIndex(index).~ComponentType();
-        ++index;
+    if constexpr (!std::is_trivially_destructible_v<ComponentType>) {
+        for (ECS::EntityIndex index {}; const auto entity : _entities) {
+            if (entity != ECS::NullEntity) [[likely]]
+                atIndex(index).~ComponentType();
+            ++index;
+        }
     }
 }
 
