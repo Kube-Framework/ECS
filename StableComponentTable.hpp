@@ -266,7 +266,7 @@ private:
 
     /** @brief Get page index from an entity index */
     [[nodiscard]] static constexpr EntityIndex GetPageIndex(const EntityIndex unstableIndex) noexcept
-        { return unstableIndex / EntityPageSize; }
+        { return unstableIndex / ComponentPageSize; }
 
     /** @brief Get component index from an entity index */
     [[nodiscard]] static constexpr EntityIndex GetComponentIndex(const EntityIndex unstableIndex) noexcept

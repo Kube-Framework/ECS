@@ -55,37 +55,22 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
     if (_tombstones.empty()) [[likely]]
         return;
 
-    // Sort tombstones in descending order
-    std::sort(_tombstones.rbegin(), _tombstones.rend());
-
-    Core::SmallVector<EntityRange, 128, Allocator, Entity> moveIndexes;
-
-    // Retreive move indexes from tombstones
-    auto last = _entities.size() - 1;
-    for (const auto index : _tombstones) {
-        if (index != last) [[likely]]
-            moveIndexes.push(EntityRange { .begin = last, .end = index });
+    auto last = _entities.size();
+    while (last && _entities.at(last - 1u) == NullEntity)
         --last;
+    for (auto it = _tombstones.begin(), end = _tombstones.end(); it != end && last; ++it) {
+        if (*it >= last)
+            continue;
+        --last;
+        Entity &target = _entities.at(*it);
+        target = _entities.at(last);
+        atIndex(*it) = std::move(atIndex(last));
+        _indexSet.at(target) = *it;
+        while (last && _entities.at(last - 1u) == NullEntity)
+            --last;
     }
-
-    // Clear tombstones
     _tombstones.clear();
-
-    // Erase entities
-    for (const auto moveIndex : moveIndexes) {
-        const auto movedEntity = _entities[moveIndex.begin];
-        _entities[moveIndex.end] = movedEntity;
-        _indexSet.at(movedEntity) = moveIndex.end;
-    }
-    const auto from = last + 1; // If '--last' did overflow, re-overflow in the other side
-    _entities.erase(_entities.begin() + from, _entities.end());
-
-    // Erase components
-    for (const auto moveIndex : moveIndexes) {
-        auto &toMove = atIndex(moveIndex.begin);
-        new (&atIndex(moveIndex.end)) ComponentType(std::move(toMove));
-        toMove.~ComponentType();
-    }
+    _entities.erase(_entities.begin() + last, _entities.end());
 }
 
 template<typename ComponentType, kF::ECS::EntityIndex ComponentPageSize, kF::ECS::EntityIndex EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
@@ -215,7 +200,8 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
 template<typename ComponentType, kF::ECS::EntityIndex ComponentPageSize, kF::ECS::EntityIndex EntityPageSize, kF::Core::StaticAllocatorRequirements Allocator>
 inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, EntityPageSize, Allocator>::removeImpl(const Entity entity, const EntityIndex entityIndex) noexcept
 {
-    { // Remove component
+    // Remove component
+    if constexpr (!std::is_trivially_destructible_v<ComponentType>) {
         const auto pageIndex = GetPageIndex(entityIndex);
         const auto componentIndex = GetComponentIndex(entityIndex);
         _componentPages.at(pageIndex)->data()[componentIndex].~ComponentType();
@@ -225,7 +211,7 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
     _indexSet.remove(entity);
 
     // Remove entity
-    _entities.at(entityIndex) = ECS::NullEntity;
+    _entities.at(entityIndex) = NullEntity;
 
     // Add tombstone
     _tombstones.push(entityIndex);
@@ -310,18 +296,15 @@ inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, Enti
     std::sort(_entities.begin(), _entities.end(), std::forward<CompareFunctor>(compareFunc));
 
     // Apply sort patch to components & sparse set
-    for (std::uint32_t from {}, to = _entities.size(); from != to; ++from) {
+    for (EntityIndex from {}, to = _entities.size(); from != to; ++from) {
         auto current = from;
-        auto currentEntity = _entities.at(current);
-        std::uint32_t next = _indexSet.at(currentEntity);
-
-        while (current != next) [[unlikely]] {
-            const auto nextEntity = _entities.at(next);
-            const auto following = _indexSet.at(nextEntity);
-            std::swap(atIndex(next), atIndex(following));
-            _indexSet.at(currentEntity) = current;
-            current = std::exchange(next, following);
-            currentEntity = _entities.at(current);
+        auto next = _indexSet.at(_entities.at(current));
+        while (current != next) {
+            const auto index = _indexSet.at(_entities.at(next));
+            const auto entity = _entities.at(current);
+            std::swap(atIndex(next), atIndex(index));
+            _indexSet.at(entity) = current;
+            current = std::exchange(next, index);
         }
     }
 }
@@ -333,7 +316,7 @@ template<typename Callback>
         || std::is_invocable_v<Callback, kF::ECS::Entity, ComponentType &>
 inline void kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, EntityPageSize, Allocator>::traverse(Callback &&callback) noexcept
 {
-    for (EntityIndex index {}, count = _entities.size(); index != count; ++index) {
+    for (EntityIndex index {}; index < _entities.size(); ++index) {
         const auto entity = _entities[index];
         if (entity == NullEntity) [[unlikely]]
             continue;
