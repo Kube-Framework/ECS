@@ -260,6 +260,12 @@ public:
     void pack(void) noexcept;
 
 
+    /** @brief Check an entity has the given Components */
+    template<typename ...Components>
+        requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
+    [[nodiscard]] bool exists(const ECS::Entity entity) const noexcept;
+
+
     /** @brief Creates an entity */
     using Internal::ASystem::add;
 

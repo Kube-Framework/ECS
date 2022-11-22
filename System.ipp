@@ -23,6 +23,14 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
 template<typename ...Components>
+    requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
+bool kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::exists(const ECS::Entity entity) const noexcept
+{
+    return (getTable<Components>().exists(entity) && ...);
+}
+
+template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
+template<typename ...Components>
         requires kF::ECS::SystemComponentRequirements<kF::ECS::Internal::ForwardComponentsTuple<ComponentTypes...>, Components...>
 inline kF::ECS::Entity kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::add(Components &&...components) noexcept
 {
