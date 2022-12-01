@@ -1,10 +1,10 @@
 /**
  * @ Author: Matthieu Moinvaziri
- * @ Description: System
+ * @ Description: ASystem
  */
 
+#include "ASystem.hpp"
 #include "Executor.hpp"
-#include "System.hpp"
 
 using namespace kF;
 
@@ -119,10 +119,7 @@ ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint3
         return nullptr;
 }
 
-void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, Core::Functor<void(void), ECSAllocator> &&callback) const noexcept
+void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
 {
-    static_assert(std::is_same_v<Core::Functor<void(void), ECSAllocator>, Executor::PipelineEvent>,
-        "Please update this function to keep perfect functor forwarding");
-
     parent().sendEvent(pipelineIndex, std::move(callback));
 }

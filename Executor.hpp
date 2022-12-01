@@ -12,6 +12,7 @@
 #include <Kube/Flow/Scheduler.hpp>
 
 #include "System.hpp"
+#include "PipelineEvent.hpp"
 
 #ifndef KUBE_ECS_PIPELINE_CACHE_COUNT
 # define KUBE_ECS_PIPELINE_CACHE_COUNT 4
@@ -61,9 +62,6 @@ class alignas_double_cacheline kF::ECS::Executor
 public:
     /** @brief Executor event */
     using ExecutorEvent = Core::TrivialFunctor<bool(void)>;
-
-    /** @brief Pipeline event */
-    using PipelineEvent = Core::Functor<void(void), ECSAllocator>;
 
     /** @brief Pipeline begin pass (if returns false, the whole pipeline is ignored) */
     using PipelineBeginPass = Core::TrivialFunctor<bool(void)>;

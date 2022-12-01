@@ -1,5 +1,7 @@
 kube_add_library(ECS
     SOURCES
+        ASystem.cpp
+        ASystem.hpp
         Base.hpp
         ComponentTable.hpp
         ComponentTable.ipp
@@ -9,7 +11,6 @@ kube_add_library(ECS
         Pipeline.hpp
         StableComponentTable.hpp
         StableComponentTable.ipp
-        System.cpp
         System.hpp
         System.ipp
 
