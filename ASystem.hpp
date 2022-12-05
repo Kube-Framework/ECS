@@ -104,7 +104,20 @@ protected:
     [[nodiscard]] ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) const noexcept;
 
     /** @brief Send event using pipeline hashed name */
-    void sendEventOpaque(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept;
+    template<bool RetryOnFailure = false>
+    inline void sendEventOpaque(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+    {
+        if constexpr (RetryOnFailure)
+            sendEventOpaqueRetryOnFailure(pipelineIndex, std::move(callback));
+        else
+            sendEventOpaqueExitOnFailure(pipelineIndex, std::move(callback));
+    }
+
+    /** @brief Send event using pipeline hashed name (exit on failure) */
+    void sendEventOpaqueExitOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept;
+
+    /** @brief Send event using pipeline hashed name (retry on failure) */
+    void sendEventOpaqueRetryOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept;
 
 
 private:

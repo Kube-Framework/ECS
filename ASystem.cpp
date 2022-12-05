@@ -119,7 +119,12 @@ ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint3
         return nullptr;
 }
 
-void ECS::Internal::ASystem::sendEventOpaque(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+void ECS::Internal::ASystem::sendEventOpaqueExitOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
 {
-    parent().sendEvent(pipelineIndex, std::move(callback));
+    parent().sendEvent<false>(pipelineIndex, std::move(callback));
+}
+
+void ECS::Internal::ASystem::sendEventOpaqueRetryOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+{
+    parent().sendEvent<true>(pipelineIndex, std::move(callback));
 }

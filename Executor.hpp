@@ -239,12 +239,12 @@ public:
 
 
     /** @brief Send an event to a system */
-    template<typename DestinationPipeline, typename Callback>
+    template<typename DestinationPipeline, bool RetryOnFailure = false, typename Callback>
     void sendEvent(Callback &&callback) noexcept;
 
     /** @brief Send an event to a system, using a specific pipeline index
      *  @note DestinationPipeline and pipelineIndex must match */
-    template<typename Callback>
+    template<bool RetryOnFailure = false, typename Callback>
     void sendEvent(const std::uint32_t pipelineIndex, Callback &&callback) noexcept;
 
 private:

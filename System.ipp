@@ -154,18 +154,18 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
 }
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
-template<typename Callback>
+template<bool RetryOnFailure, typename Callback>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::interact(Callback &&callback) const noexcept
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
     using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
     using FlatSystem = std::remove_reference_t<DestinationSystem>;
 
-    interact<typename FlatSystem::ExecutorPipeline>(std::forward<Callback>(callback));
+    interact<typename FlatSystem::ExecutorPipeline, RetryOnFailure>(std::forward<Callback>(callback));
 }
 
 template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Core::StaticAllocatorRequirements Allocator, typename ...ComponentTypes>
-template<typename DestinationPipeline, typename Callback>
+template<typename DestinationPipeline, bool RetryOnFailure, typename Callback>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::interact(Callback &&callback) const noexcept
 {
     const auto invoke = [this](const auto &callback) {
@@ -206,7 +206,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
         const auto pipelineIndex = getPipelineIndex(DestinationPipeline::Hash);
         kFEnsure(pipelineIndex.success(),
             "ECS::System::interact: Pipeline '", DestinationPipeline::Name, "' is not registered");
-        sendEventOpaque(*pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] {
+        sendEventOpaque<RetryOnFailure>(*pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] {
             // 'pipelineIndex' could be cached but this would increase chances to use allocation
             invoke(callback);
         });

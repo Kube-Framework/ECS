@@ -3,6 +3,8 @@
  * @ Description: System executor
  */
 
+#include <thread>
+
 #include <Kube/Core/FunctionDecomposer.hpp>
 
 #include "Executor.hpp"
@@ -114,7 +116,7 @@ inline SystemType &kF::ECS::Executor::getSystem(const std::uint32_t pipelineInde
     return *reinterpret_cast<SystemType *>(_pipelines.systems.at(pipelineIndex).at(systemIndex.value()).get());
 }
 
-template<typename DestinationPipeline, typename Callback>
+template<typename DestinationPipeline, bool RetryOnFailure, typename Callback>
 inline void kF::ECS::Executor::sendEvent(Callback &&callback) noexcept
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
@@ -126,30 +128,42 @@ inline void kF::ECS::Executor::sendEvent(Callback &&callback) noexcept
     const auto pipelineIndex = getPipelineIndex(DestinationPipeline::Hash);
     kFEnsure(pipelineIndex.success(),
         "ECS::Executor::getSystem: Couldn't find pipeline '", DestinationPipeline::Name, '\'');
-    sendEvent(*pipelineIndex, std::forward<Callback>(callback));
+    sendEvent<RetryOnFailure>(*pipelineIndex, std::forward<Callback>(callback));
 }
 
-template<typename Callback>
+template<bool RetryOnFailure, typename Callback>
 inline void kF::ECS::Executor::sendEvent(const std::uint32_t pipelineIndex, Callback &&callback) noexcept
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
 
+    PipelineEvent pipelineEvent([]([[maybe_unused]] const std::uint32_t pipelineIndex, Callback &&callback) {
+        // If the callback has a system reference as single argument
+        if constexpr (Decomposer::IndexSequence.size() == 1) {
+            // Retreive callback argument
+            using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
+            using FlatSystem = std::remove_reference_t<DestinationSystem>;
+            static_assert(std::is_reference_v<DestinationSystem>,
+                "ECS::Executor::sendEvent: Event callback invalid argument, must be a reference to any system");
+
+            // Query destination system index and wrap callback
+            return [callback = std::forward<Callback>(callback), system = getSystem<FlatSystem>()] {
+                callback(system);
+            };
+        } else
+            return std::forward<Callback>(callback);
+    }(pipelineIndex, std::forward<Callback>(callback)));
+
+    // When RetryOnFailure is set to true, loop until event is pushed
     bool res = false;
-
-    // If the callback has a system reference as single argument
-    if constexpr (Decomposer::IndexSequence.size() == 1) {
-        // Retreive callback argument
-        using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
-        using FlatSystem = std::remove_reference_t<DestinationSystem>;
-        static_assert(std::is_reference_v<DestinationSystem>,
-            "ECS::Executor::sendEvent: Event callback invalid argument, must be a reference to any system");
-
-        // Query destination system index
-        res = _pipelines.events.at(pipelineIndex)->push([callback = std::forward<Callback>(callback), system = getSystem<FlatSystem>()] {
-            callback(system);
-        });
-    } else {
-        res = _pipelines.events.at(pipelineIndex)->push(std::forward<Callback>(callback));
+    while (true) {
+        res = _pipelines.events.at(pipelineIndex)->push<true>(pipelineEvent);
+        if constexpr (RetryOnFailure) {
+            if (!res) {
+                std::this_thread::yield();
+                continue;
+            }
+        }
+        break;
     }
     kFEnsure(res, "Executor::sendEvent: Critical error, event queue is full");
 }
