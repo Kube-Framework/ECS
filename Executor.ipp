@@ -136,22 +136,22 @@ inline void kF::ECS::Executor::sendEvent(const std::uint32_t pipelineIndex, Call
 {
     using Decomposer = Core::FunctionDecomposerHelper<Callback>;
 
-    PipelineEvent pipelineEvent([]([[maybe_unused]] const std::uint32_t pipelineIndex, Callback &&callback) {
-        // If the callback has a system reference as single argument
-        if constexpr (Decomposer::IndexSequence.size() == 1) {
-            // Retreive callback argument
-            using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
-            using FlatSystem = std::remove_reference_t<DestinationSystem>;
-            static_assert(std::is_reference_v<DestinationSystem>,
-                "ECS::Executor::sendEvent: Event callback invalid argument, must be a reference to any system");
+    PipelineEvent pipelineEvent;
 
-            // Query destination system index and wrap callback
-            return [callback = std::forward<Callback>(callback), system = getSystem<FlatSystem>()] {
-                callback(system);
-            };
-        } else
-            return std::forward<Callback>(callback);
-    }(pipelineIndex, std::forward<Callback>(callback)));
+    // If the callback has a system reference as single argument
+    if constexpr (Decomposer::IndexSequence.size() == 1) {
+        // Retreive callback argument
+        using DestinationSystem = std::tuple_element_t<0, typename Decomposer::ArgsTuple>;
+        using FlatSystem = std::remove_reference_t<DestinationSystem>;
+        static_assert(std::is_reference_v<DestinationSystem>,
+            "ECS::Executor::sendEvent: Event callback invalid argument, must be a reference to any system");
+
+        // Query destination system index and wrap callback
+        pipelineEvent = [callback = std::forward<Callback>(callback), system = getSystem<FlatSystem>()] {
+            callback(system);
+        };
+    } else
+        pipelineEvent = std::forward<Callback>(callback);
 
     // When RetryOnFailure is set to true, loop until event is pushed
     bool res = false;
