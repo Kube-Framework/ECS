@@ -3,6 +3,7 @@
  * @ Description: System
  */
 
+#include <Kube/Core/Abort.hpp>
 #include <Kube/Core/FunctionDecomposer.hpp>
 
 #include "System.hpp"
