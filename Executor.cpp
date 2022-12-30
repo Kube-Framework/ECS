@@ -130,7 +130,7 @@ void ECS::Executor::observePipelines(void) noexcept
     // kFInfo("Observe pipelines ", elapsed);
     // Iterate over each pipeline clock
     for (std::uint32_t pipelineIndex = 0; auto &clock : _pipelines.clocks) {
-        const auto tickRate = clock.tickRate();
+        const auto tickRate = clock.tickRate(); // @todo fix this datarace when clock frequency changes at runtime (mutex / atomic)
         const bool isTimeBound = clock.isTimeBound();
         clock.elapsed += elapsed;
         // If the pipeline has to be executed
