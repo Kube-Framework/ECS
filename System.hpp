@@ -109,14 +109,6 @@ public:
     /** @brief Number of component tables in this system */
     static constexpr std::size_t ComponentCount = sizeof...(ComponentTypes);
 
-    /** @brief Entity mask of this system */
-    static constexpr Entity EntityMask = ~static_cast<Entity>(0) >> static_cast<Entity>(ComponentCount);
-
-    /** @brief Component mask of this system */
-    static constexpr Entity ComponentMask = ~EntityMask;
-
-    static_assert(ComponentCount <= EntityBitCount / 2, "ECS::System: Component count cannot exceed half of ECS::Entity bits");
-
 
     /** @brief Virtual destructor */
     virtual ~System(void) noexcept override = default;
