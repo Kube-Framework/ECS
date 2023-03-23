@@ -23,7 +23,7 @@ public:
     static constexpr bool IsStable = false;
 
 
-    /** @brief Type of stored component */
+    /** @brief ComponentType of stored component */
     using ValueType = ComponentType;
 
     /** @brief Sparse set that stores indexes of entities' components */
@@ -152,6 +152,87 @@ public:
             || std::is_invocable_v<Callback, kF::ECS::Entity, const ComponentType &>
     inline void traverse(Callback &&callback) const noexcept
         { const_cast<ComponentTable &>(*this).traverse(std::forward<Callback>(callback)); }
+
+
+    /** @brief Find an element by comparison */
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::Iterator find(const Comparable &comparable) noexcept
+        { return std::find(begin(), end(), comparable); }
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ConstIterator find(const Comparable &comparable) const noexcept
+        { return std::find(begin(), end(), comparable); }
+
+    /** @brief Find an element by comparison, using begin iterator */
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::Iterator find(const Components::Iterator from, const Comparable &comparable) noexcept
+        { return std::find(from, end(), comparable); }
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ConstIterator find(const Components::ConstIterator from, const Comparable &comparable) const noexcept
+        { return std::find(from, end(), comparable); }
+
+    /** @brief Find an element by comparison with reverse order */
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ReverseIterator rfind(const Comparable &comparable) noexcept
+        { return std::find(rbegin(), rend(), comparable); }
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ConstReverseIterator rfind(const Comparable &comparable) const noexcept
+        { return std::find(rbegin(), rend(), comparable); }
+
+    /** @brief Find an element by comparison with reverse order, using begin iterator */
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ReverseIterator rfind(const Components::ReverseIterator from, const Comparable &comparable) noexcept
+        { return std::find(from, rend(), comparable); }
+    template<typename Comparable>
+        requires requires(const ComponentType &lhs, const Comparable &rhs) { lhs == rhs; }
+    [[nodiscard]] inline Components::ConstReverseIterator rfind(const Components::ConstReverseIterator from, const Comparable &comparable) const noexcept
+        { return std::find(from, rend(), comparable); }
+
+    /** @brief Find an element with functor */
+    template<typename Functor>
+        requires std::invocable<Functor, ComponentType &>
+    [[nodiscard]] inline Components::Iterator find(Functor &&functor) noexcept
+        { return std::find_if(begin(), end(), std::forward<Functor>(functor)); }
+    template<typename Functor>
+        requires std::invocable<Functor, const ComponentType &>
+    [[nodiscard]] inline Components::ConstIterator find(Functor &&functor) const noexcept
+        { return std::find_if(begin(), end(), std::forward<Functor>(functor)); }
+
+    /** @brief Find an element with functor, using begin iterator */
+    template<typename Functor>
+        requires std::invocable<Functor, ComponentType &>
+    [[nodiscard]] inline Components::Iterator find(const Components::Iterator from, Functor &&functor) noexcept
+        { return std::find_if(from, end(), std::forward<Functor>(functor)); }
+    template<typename Functor>
+        requires std::invocable<Functor, const ComponentType &>
+    [[nodiscard]] inline Components::ConstIterator find(const Components::ConstIterator from, Functor &&functor) const noexcept
+        { return std::find_if(from, end(), std::forward<Functor>(functor)); }
+
+    /** @brief Find an element with functor with reverse order */
+    template<typename Functor>
+        requires std::invocable<Functor, ComponentType &>
+    [[nodiscard]] inline Components::Iterator rfind(Functor &&functor) noexcept
+        { return std::find_if(rbegin(), rend(), std::forward<Functor>(functor)); }
+    template<typename Functor>
+        requires std::invocable<Functor, const ComponentType &>
+    [[nodiscard]] inline Components::ConstIterator rfind(Functor &&functor) const noexcept
+        { return std::find_if(rbegin(), rend(), std::forward<Functor>(functor)); }
+
+    /** @brief Find an element with functor with reverse order, using reversed begin iterator */
+    template<typename Functor>
+        requires std::invocable<Functor, ComponentType &>
+    [[nodiscard]] inline Components::ReverseIterator rfind(const Components::ReverseIterator from, Functor &&functor) noexcept
+        { return std::find_if(from, rend(), std::forward<Functor>(functor)); }
+    template<typename Functor>
+        requires std::invocable<Functor, const ComponentType &>
+    [[nodiscard]] inline Components::ConstReverseIterator rfind(const Components::ConstReverseIterator from, Functor &&functor) const noexcept
+        { return std::find_if(from, rend(), std::forward<Functor>(functor)); }
 
 private:
     /** @brief Check if an entity exists in the sparse set */
