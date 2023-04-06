@@ -203,22 +203,21 @@ public:
 
 
     /** @brief Get pipeline index from pipeline runtime name */
-    [[nodiscard]] Core::Expected<std::uint32_t> getPipelineIndex(const Core::HashedName pipelineHash) const noexcept;
+    [[nodiscard]] Core::Expected<PipelineIndex> getPipelineIndex(const Core::HashedName pipelineHash) const noexcept;
 
     /** @brief Get system index from pipeline index and runtime name */
-    [[nodiscard]] Core::Expected<std::uint32_t> getSystemIndex(const std::uint32_t pipelineIndex,
-            const Core::HashedName systemHash) const noexcept;
+    [[nodiscard]] Core::Expected<PipelineIndex> getSystemIndex(const PipelineIndex pipelineIndex, const Core::HashedName systemHash) const noexcept;
 
 
     /** @brief Get pipeline tick rate from pipeline index */
-    [[nodiscard]] inline std::int64_t getPipelineTickRate(const std::uint32_t pipelineIndex) const noexcept
+    [[nodiscard]] inline std::int64_t getPipelineTickRate(const PipelineIndex pipelineIndex) const noexcept
         { return _pipelines.clocks.at(pipelineIndex).tickRate(); }
 
     /** @brief Get pipeline tick rate from pipeline index */
-    void setPipelineHertz(const std::uint32_t pipelineIndex, const std::int64_t frequencyHz) noexcept;
+    void setPipelineHertz(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept;
 
     /** @brief Get pipeline time bound state from pipeline index */
-    [[nodiscard]] inline bool isPipelineTimeBound(const std::uint32_t pipelineIndex) const noexcept
+    [[nodiscard]] inline bool isPipelineTimeBound(const PipelineIndex pipelineIndex) const noexcept
         { return _pipelines.clocks.at(pipelineIndex).isTimeBound(); }
 
 
@@ -230,22 +229,22 @@ public:
     /** @brief Get system reference using pipeline index
      *  @note Abort if system doesn't exist */
     template<typename SystemType>
-    [[nodiscard]] SystemType &getSystem(const std::uint32_t pipelineIndex) noexcept;
+    [[nodiscard]] SystemType &getSystem(const PipelineIndex pipelineIndex) noexcept;
 
     /** @brief Get opaque system using pipeline & system indexes
      *  @note Doesn't check anything */
-    [[nodiscard]] inline Internal::ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const std::uint32_t systemIndex) noexcept
+    [[nodiscard]] inline Internal::ASystem *getSystemOpaque(const PipelineIndex pipelineIndex, const PipelineIndex systemIndex) noexcept
         { return _pipelines.systems.at(pipelineIndex).at(systemIndex).get(); }
 
 
     /** @brief Send an event to a system */
-    template<typename DestinationPipeline, bool RetryOnFailure = false, typename Callback>
+    template<typename DestinationPipeline, bool RetryOnFailure = true, typename Callback>
     void sendEvent(Callback &&callback) noexcept;
 
     /** @brief Send an event to a system, using a specific pipeline index
      *  @note DestinationPipeline and pipelineIndex must match */
-    template<bool RetryOnFailure = false, typename Callback>
-    void sendEvent(const std::uint32_t pipelineIndex, Callback &&callback) noexcept;
+    template<bool RetryOnFailure = true, typename Callback>
+    void sendEvent(const PipelineIndex pipelineIndex, Callback &&callback) noexcept;
 
 private:
     // Global access instance
@@ -277,7 +276,7 @@ private:
     void buildPipelineGraphs(void) noexcept;
 
     /** @brief Build a pipeline graph given its index */
-    void buildPipelineGraph(const std::uint32_t pipelineIndex) noexcept;
+    void buildPipelineGraph(const PipelineIndex pipelineIndex) noexcept;
 
     /** @brief Wait executor to enter IDLE state (no pipeline running) */
     void waitIDLE(void) noexcept;

@@ -106,12 +106,12 @@ void ECS::Internal::ASystem::queryPipelineIndex(const Core::HashedName pipelineH
     _tickRate = parent().getPipelineTickRate(_executorPipelineIndex);
 }
 
-Core::Expected<std::uint32_t> ECS::Internal::ASystem::getPipelineIndex(const Core::HashedName pipelineHash) const noexcept
+Core::Expected<ECS::PipelineIndex> ECS::Internal::ASystem::getPipelineIndex(const Core::HashedName pipelineHash) const noexcept
 {
     return parent().getPipelineIndex(pipelineHash);
 }
 
-ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) const noexcept
+ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const PipelineIndex pipelineIndex, const Core::HashedName systemName) const noexcept
 {
     if (const auto systemIndex = parent().getSystemIndex(pipelineIndex, systemName); systemIndex.success()) [[likely]]
         return parent().getSystemOpaque(pipelineIndex, systemIndex.value());
@@ -119,12 +119,12 @@ ECS::Internal::ASystem *ECS::Internal::ASystem::getSystemOpaque(const std::uint3
         return nullptr;
 }
 
-void ECS::Internal::ASystem::sendEventOpaqueExitOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+void ECS::Internal::ASystem::sendEventOpaqueExitOnFailure(const PipelineIndex pipelineIndex, PipelineEvent &&callback) const noexcept
 {
     parent().sendEvent<false>(pipelineIndex, std::move(callback));
 }
 
-void ECS::Internal::ASystem::sendEventOpaqueRetryOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+void ECS::Internal::ASystem::sendEventOpaqueRetryOnFailure(const PipelineIndex pipelineIndex, PipelineEvent &&callback) const noexcept
 {
     parent().sendEvent<true>(pipelineIndex, std::move(callback));
 }

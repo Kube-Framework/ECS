@@ -127,14 +127,14 @@ public:
     /** @brief Interact with another system using 'this'
      *  @note The callback functor must have a system reference as argument : void(auto &system)
      *  @note If 'this' system and target system are not on the same pipeline, an event is sent to the target pipeline */
-    template<bool RetryOnFailure = false, typename Callback>
+    template<bool RetryOnFailure = true, typename Callback>
     void interact(Callback &&callback) const noexcept;
 
     /** @brief Interact with another system using 'this'
      *  @note The callback functor may have a system reference as argument : void(void) | void(auto &system)
      *  @note If 'this' system pipeline is not the same as target pipeline, an event is sent to the target pipeline
      *  @tparam DestinationPipeline Pipeline to which belong the callback */
-    template<typename DestinationPipeline, bool RetryOnFailure = false, typename Callback>
+    template<typename DestinationPipeline, bool RetryOnFailure = true, typename Callback>
     void interact(Callback &&callback) const noexcept;
 
 

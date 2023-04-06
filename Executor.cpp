@@ -35,42 +35,41 @@ ECS::Executor::Executor(const std::size_t workerCount, const std::size_t taskQue
     _Instance = this;
 }
 
-Core::Expected<std::uint32_t> ECS::Executor::getPipelineIndex(const Core::HashedName pipelineHash) const noexcept
+Core::Expected<ECS::PipelineIndex> ECS::Executor::getPipelineIndex(const Core::HashedName pipelineHash) const noexcept
 {
-    Core::Expected<std::uint32_t> res;
+    Core::Expected<PipelineIndex> res;
 
-    for (std::uint32_t index = 0u; const auto hash : _pipelines.hashes) {
+    for (PipelineIndex index = 0u; const auto hash : _pipelines.hashes) {
         if (hash != pipelineHash) [[likely]] {
             ++index;
             continue;
         } else [[unlikely]] {
-            res = Core::Expected<std::uint32_t>(index);
+            res = Core::Expected<PipelineIndex>(index);
             break;
         }
     }
     return res;
 }
 
-Core::Expected<std::uint32_t> ECS::Executor::getSystemIndex(const std::uint32_t pipelineIndex,
-        const Core::HashedName systemHash) const noexcept
+Core::Expected<ECS::PipelineIndex> ECS::Executor::getSystemIndex(const PipelineIndex pipelineIndex, const Core::HashedName systemHash) const noexcept
 {
-    Core::Expected<std::uint32_t> res;
+    Core::Expected<PipelineIndex> res;
 
     // Find system inside pipeline
     auto &names = _pipelines.systemHashes.at(pipelineIndex);
-    for (std::uint32_t index = 0; const auto name : names) {
+    for (PipelineIndex index = 0; const auto name : names) {
         if (name != systemHash) [[likely]] {
             ++index;
             continue;
         } else [[unlikely]] {
-            res = Core::Expected<std::uint32_t>(index);
+            res = Core::Expected<PipelineIndex>(index);
             break;
         }
     }
     return res;
 }
 
-void ECS::Executor::setPipelineHertz(const std::uint32_t pipelineIndex, const std::int64_t frequencyHz) noexcept
+void ECS::Executor::setPipelineHertz(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept
 {
     kFEnsure(frequencyHz >= 0, "ECS::Executor::addPipeline: Pipeline only support frequency in range [0, inf[");
     _pipelines.clocks.at(pipelineIndex).setTickRate(HzToRate(frequencyHz));
@@ -129,7 +128,7 @@ void ECS::Executor::observePipelines(void) noexcept
 
     // kFInfo("Observe pipelines ", elapsed);
     // Iterate over each pipeline clock
-    for (std::uint32_t pipelineIndex = 0; auto &clock : _pipelines.clocks) {
+    for (PipelineIndex pipelineIndex = 0; auto &clock : _pipelines.clocks) {
         const auto tickRate = clock.tickRate(); // @todo fix this datarace when clock frequency changes at runtime (mutex / atomic)
         const bool isTimeBound = clock.isTimeBound();
         clock.elapsed += elapsed;
@@ -200,12 +199,12 @@ void ECS::Executor::waitPipelines(void) noexcept
 
 void ECS::Executor::buildPipelineGraphs(void) noexcept
 {
-    for (std::uint32_t index = 0, count = _pipelines.hashes.size(); index != count; ++index) {
+    for (PipelineIndex index {}, count = _pipelines.hashes.size(); index != count; ++index) {
         buildPipelineGraph(index);
     }
 }
 
-void ECS::Executor::buildPipelineGraph(const std::uint32_t pipelineIndex) noexcept
+void ECS::Executor::buildPipelineGraph(const PipelineIndex pipelineIndex) noexcept
 {
     // Retreive pipeline system list & graph
     auto &systems = _pipelines.systems.at(pipelineIndex);

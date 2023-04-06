@@ -15,6 +15,9 @@ namespace kF::ECS
 {
     class Executor;
 
+    /** @brief Pipeline index */
+    using PipelineIndex = std::uint32_t;
+
     namespace Internal
     {
         class ASystem;
@@ -61,7 +64,7 @@ public:
 
 
     /** @brief Get executor pipeline index */
-    [[nodiscard]] inline std::uint32_t executorPipelineIndex(void) const noexcept { return _executorPipelineIndex; }
+    [[nodiscard]] inline PipelineIndex executorPipelineIndex(void) const noexcept { return _executorPipelineIndex; }
 
 
     /** @brief Get internal task graph reference */
@@ -97,15 +100,15 @@ public:
 
 protected:
     /** @brief Get pipeline index from pipeline runtime name */
-    [[nodiscard]] Core::Expected<std::uint32_t> getPipelineIndex(const Core::HashedName pipelineHash) const noexcept;
+    [[nodiscard]] Core::Expected<PipelineIndex> getPipelineIndex(const Core::HashedName pipelineHash) const noexcept;
 
     /** @brief Get opaque system using pipeline index & system hashed name
      *  @return Returns nullptr if system doesn't exist */
-    [[nodiscard]] ASystem *getSystemOpaque(const std::uint32_t pipelineIndex, const Core::HashedName systemName) const noexcept;
+    [[nodiscard]] ASystem *getSystemOpaque(const PipelineIndex pipelineIndex, const Core::HashedName systemName) const noexcept;
 
     /** @brief Send event using pipeline hashed name */
-    template<bool RetryOnFailure = false>
-    inline void sendEventOpaque(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept
+    template<bool RetryOnFailure = true>
+    inline void sendEventOpaque(const PipelineIndex pipelineIndex, PipelineEvent &&callback) const noexcept
     {
         if constexpr (RetryOnFailure)
             sendEventOpaqueRetryOnFailure(pipelineIndex, std::move(callback));
@@ -114,17 +117,17 @@ protected:
     }
 
     /** @brief Send event using pipeline hashed name (exit on failure) */
-    void sendEventOpaqueExitOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept;
+    void sendEventOpaqueExitOnFailure(const PipelineIndex pipelineIndex, PipelineEvent &&callback) const noexcept;
 
     /** @brief Send event using pipeline hashed name (retry on failure) */
-    void sendEventOpaqueRetryOnFailure(const std::uint32_t pipelineIndex, PipelineEvent &&callback) const noexcept;
+    void sendEventOpaqueRetryOnFailure(const PipelineIndex pipelineIndex, PipelineEvent &&callback) const noexcept;
 
 
 private:
     // Cacheline 0
     // vtable pointer
     Executor *_parent {};
-    std::uint32_t _executorPipelineIndex {};
+    PipelineIndex _executorPipelineIndex {};
     bool _isTimeBound {};
     std::int64_t _tickRate {};
     Flow::GraphPtr _graph {};
