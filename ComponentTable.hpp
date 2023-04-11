@@ -217,11 +217,11 @@ public:
     /** @brief Find an element with functor with reverse order */
     template<typename Functor>
         requires std::invocable<Functor, ComponentType &>
-    [[nodiscard]] inline Components::Iterator rfind(Functor &&functor) noexcept
+    [[nodiscard]] inline Components::ReverseIterator rfind(Functor &&functor) noexcept
         { return std::find_if(rbegin(), rend(), std::forward<Functor>(functor)); }
     template<typename Functor>
         requires std::invocable<Functor, const ComponentType &>
-    [[nodiscard]] inline Components::ConstIterator rfind(Functor &&functor) const noexcept
+    [[nodiscard]] inline Components::ConstReverseIterator rfind(Functor &&functor) const noexcept
         { return std::find_if(rbegin(), rend(), std::forward<Functor>(functor)); }
 
     /** @brief Find an element with functor with reverse order, using reversed begin iterator */
