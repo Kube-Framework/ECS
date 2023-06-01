@@ -16,7 +16,7 @@ using namespace kF;
 
 static void PreciseSleep(const std::int64_t nanoseconds) noexcept;
 
-ECS::Executor *ECS::Executor::_Instance { nullptr };
+ECS::Executor *ECS::Executor::_Instance {};
 
 ECS::Executor::~Executor(void) noexcept
 {

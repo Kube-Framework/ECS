@@ -54,6 +54,10 @@ public:
     /** @brief Default constructor */
     ASystem(void) noexcept;
 
+    /** @brief ASystem is not copiable */
+    ASystem(const ASystem &other) noexcept = delete;
+    ASystem &operator=(const ASystem &other) noexcept = delete;
+
 
     /** @brief Virtual system tick function  */
     [[nodiscard]] virtual bool tick(void) noexcept { return true; }
