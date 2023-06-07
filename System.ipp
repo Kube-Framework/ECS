@@ -207,7 +207,7 @@ inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes..
         const auto pipelineIndex = getPipelineIndex(DestinationPipeline::Hash);
         kFEnsure(pipelineIndex.success(),
             "ECS::System::interact: Pipeline '", DestinationPipeline::Name, "' is not registered");
-        sendEventOpaque<RetryOnFailure>(*pipelineIndex, [invoke, callback = std::forward<Callback>(callback)] mutable {
+        sendEventOpaque<RetryOnFailure>(*pipelineIndex, [invoke, callback = std::forward<Callback>(callback)]() mutable {
             // 'pipelineIndex' could be cached but this would increase chances to use allocation
             invoke(callback);
         });
