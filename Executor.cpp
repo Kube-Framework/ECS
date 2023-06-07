@@ -237,7 +237,7 @@ void ECS::Executor::buildPipelineGraph(const PipelineIndex pipelineIndex) noexce
 
     // For each system, record tick & graph tasks then link them to begin / end
     for (auto &system : systems) {
-        auto &tickTask = graph.add([this, system = system.get()](void) -> bool { return !system->tick(); });
+        auto &tickTask = graph.add([system = system.get()](void) -> bool { return !system->tick(); });
         auto &graphTask = graph.add(&system->taskGraph());
 
         // Connect tick to previous tasks

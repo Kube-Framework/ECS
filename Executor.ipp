@@ -53,7 +53,7 @@ inline SystemType &kF::ECS::Executor::addSystem(Args &&...args) noexcept
     if constexpr (sizeof...(Dependencies) != 0) {
         kFEnsure(insertAt != nullptr,
             "ECS::Executor::addSystem: System '", SystemType::Name, "' is added before its dependencies");
-        auto orderFunc = [this, &systemNames]<typename DependencyHolder>(auto &insertAt, DependencyHolder) {
+        auto orderFunc = [&systemNames]<typename DependencyHolder>(auto &insertAt, DependencyHolder) {
             // Deduce dependency type
             using Dependency = DependencyHolder::Type;
 

@@ -60,7 +60,7 @@ public:
 
 
     /** @brief Virtual system tick function  */
-    [[nodiscard]] virtual bool tick(void) noexcept { return true; }
+    [[nodiscard]] virtual bool tick(void) noexcept override { return true; }
 
 
     /** @brief Get parent executor reference */

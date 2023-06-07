@@ -107,7 +107,7 @@ public:
     /** @brief Store the clock of a pipeline */
     struct alignas_quarter_cacheline PipelineClock
     {
-        static constexpr std::int64_t TimeBoundMask = 1ull << 63ull;
+        static constexpr std::int64_t TimeBoundMask = 1ll << 63ll;
         static constexpr std::int64_t TickRateMask = ~TimeBoundMask;
 
         std::int64_t maskedTickRate {};

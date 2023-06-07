@@ -30,13 +30,14 @@ template<typename Type>
 inline kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, EntityPageSize, Allocator>::IteratorType<Type> &
     kF::ECS::StableComponentTable<ComponentType, ComponentPageSize, EntityPageSize, Allocator>::IteratorType<Type>::operator--(void) noexcept
 {
-    const auto max = _entities.size();
+    const auto &entities = _table->entities();
+    const auto max = entities.size();
 
     while (true) {
         if (_index == 0u)
             break;
         --_index;
-        if (_entities.at(_index) != NullEntityIndex)
+        if (entities.at(_index) != NullEntityIndex)
             break;
     }
     return *this;

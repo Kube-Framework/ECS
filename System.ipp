@@ -73,10 +73,10 @@ template<kF::Core::FixedString Literal, kF::ECS::Pipeline TargetPipeline, kF::Co
 template<typename ...Functors>
 inline void kF::ECS::System<Literal, TargetPipeline, Allocator, ComponentTypes...>::tryAttach(const Entity entity, Functors &&...functors) noexcept
 {
-    const auto apply = [this]<typename Functor>(Functor &&functor) {
+    const auto apply = [this, entity]<typename Functor>(Functor &&functor) {
         using Decomposer = Core::FunctionDecomposerHelper<Functor>;
         using Component = std::remove_cvref_t<std::tuple_element_t<0, typename Decomposer::ArgsTuple>>;
-        getTable<Component>().tryAdd(std::forward<Functor>(functor));
+        getTable<Component>().tryAdd(entity, std::forward<Functor>(functor));
     };
 
     ((apply(std::forward<Functors>(functors))), ...);
