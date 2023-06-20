@@ -214,7 +214,7 @@ public:
         { return _pipelines.clocks.at(pipelineIndex).tickRate(); }
 
     /** @brief Get pipeline tick rate from pipeline index */
-    void setPipelineHertz(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept;
+    void setPipelineTickRate(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept;
 
     /** @brief Get pipeline time bound state from pipeline index */
     [[nodiscard]] inline bool isPipelineTimeBound(const PipelineIndex pipelineIndex) const noexcept

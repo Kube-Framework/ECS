@@ -69,7 +69,7 @@ Core::Expected<ECS::PipelineIndex> ECS::Executor::getSystemIndex(const PipelineI
     return res;
 }
 
-void ECS::Executor::setPipelineHertz(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept
+void ECS::Executor::setPipelineTickRate(const PipelineIndex pipelineIndex, const std::int64_t frequencyHz) noexcept
 {
     kFEnsure(frequencyHz >= 0, "ECS::Executor::addPipeline: Pipeline only support frequency in range [0, inf[");
     _pipelines.clocks.at(pipelineIndex).setTickRate(HzToRate(frequencyHz));
