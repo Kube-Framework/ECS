@@ -10,7 +10,7 @@
 namespace kF::ECS
 {
     /** @brief Allocator of the ECS library */
-    using ECSAllocator = Core::StaticSafeAllocator<"ECSAllocator">;
+    struct ECSAllocator : Core::StaticSafeAllocator<"ECSAllocator"> {};
 
 
     /** @brief Entity */
