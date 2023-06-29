@@ -93,19 +93,24 @@ void ECS::Executor::run(void) noexcept
 
     // Run until executor receive stop event
     while (true) {
-        // Observe pipelines
-        observePipelines();
-
-        // Process event & quit if necessary
-        if (!processEvents()) [[unlikely]]
-            break;
-
-        // Wait next pipeline tick
-        waitPipelines();
+        tick();
     }
 
     // Stop
     _cache.running = false;
+}
+
+void ECS::Executor::tick(void) noexcept
+{
+    // Observe pipelines
+    observePipelines();
+
+    // Process event & quit if necessary
+    if (!processEvents()) [[unlikely]]
+        return;
+
+    // Wait next pipeline tick
+    waitPipelines();
 }
 
 bool ECS::Executor::processEvents(void) noexcept
