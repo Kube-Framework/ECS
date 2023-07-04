@@ -92,25 +92,24 @@ void ECS::Executor::run(void) noexcept
     buildPipelineGraphs();
 
     // Run until executor receive stop event
-    while (true) {
-        tick();
-    }
+    while (tick());
 
     // Stop
     _cache.running = false;
 }
 
-void ECS::Executor::tick(void) noexcept
+bool ECS::Executor::tick(void) noexcept
 {
     // Observe pipelines
     observePipelines();
 
     // Process event & quit if necessary
     if (!processEvents()) [[unlikely]]
-        return;
+        return false;
 
     // Wait next pipeline tick
     waitPipelines();
+    return true;
 }
 
 bool ECS::Executor::processEvents(void) noexcept

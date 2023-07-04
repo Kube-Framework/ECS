@@ -175,7 +175,7 @@ public:
     void run(void) noexcept;
 
     /** @brief Tick the executor once */
-    void tick(void) noexcept;
+    bool tick(void) noexcept;
 
     /** @brief Stop the executor */
     void stop(void) noexcept;
