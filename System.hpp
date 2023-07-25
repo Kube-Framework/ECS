@@ -17,7 +17,7 @@ namespace kF::ECS
     class Executor;
 
     /** @brief Component stable tag (use StableComponentTable) */
-    template<typename ComponentType, EntityIndex ComponentPageSize = 4096 / sizeof(ComponentType)>
+    template<typename ComponentType, EntityIndex ComponentPageSize = Core::NextPowerOf2(4096 / sizeof(ComponentType))>
     struct StableComponent
     {
         /** @brief Underyling type */

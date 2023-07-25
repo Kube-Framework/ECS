@@ -57,7 +57,7 @@ public:
     static_assert(IndexSparseSet::IsSafeToClear, "ECS::StableComponentTable: There are no reason why index sparse set could not be safely cleared");
     static_assert(EntityPageSize != 0, "ECS::StableComponentTable: Entity page size cannot be null");
     static_assert(ComponentPageSize != 0, "ECS::StableComponentTable: Component page size cannot be null");
-    static_assert(Core::IsPowerOf2(ComponentPageSize * sizeof(ComponentType)), "ECS::StableComponentTable: Component page size must be a power of 2");
+    static_assert(Core::IsPowerOf2(ComponentPageSize), "ECS::StableComponentTable: Component page size must be a power of 2");
 
     /** @brief Iterator abstraction */
     template<typename Type>
